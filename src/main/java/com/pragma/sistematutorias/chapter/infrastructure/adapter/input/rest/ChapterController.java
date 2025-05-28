@@ -3,7 +3,7 @@ package com.pragma.sistematutorias.chapter.infrastructure.adapter.input.rest;
 import java.net.URI;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,28 +23,26 @@ import com.pragma.sistematutorias.chapter.infrastructure.adapter.input.rest.mapp
 import com.pragma.sistematutorias.shared.dto.OkResponseDto;
 import com.pragma.sistematutorias.shared.service.MessageService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/chapter")
 public class ChapterController {
 
     private final MessageService messageService;
 
-    @Autowired
-    private CreateChapterUseCase createChapterUseCase;
+    
+    private final CreateChapterUseCase createChapterUseCase;
 
-    @Autowired
-    private GetAllChaptersUseCase getAllChaptersUseCase;
+    
+    private final GetAllChaptersUseCase getAllChaptersUseCase;
 
-    @Autowired
-    private FindChapterUseCase findChapterUseCase;
+    
+    private final FindChapterUseCase findChapterUseCase;
 
-    @Autowired
-    private ChapterDtoMapper chapterDtoMapper;
-
-    ChapterController(MessageService messageService) {
-        this.messageService = messageService;
-    }
+    
+    private final ChapterDtoMapper chapterDtoMapper;
 
     @GetMapping("/")
     public ResponseEntity<OkResponseDto<List<ChapterDto>>> getAllChapters() {
@@ -60,7 +58,7 @@ public class ChapterController {
         Chapter createdChapter = createChapterUseCase.createChapter(chapter);
         ChapterDto responseDto = chapterDtoMapper.toDto(createdChapter);
 
-        OkResponseDto<ChapterDto> okResponseDto = OkResponseDto.of("Chapter created successfully", responseDto);
+        OkResponseDto<ChapterDto> okResponseDto = OkResponseDto.of(messageService.getMessage("chapter.created"), responseDto);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -74,8 +72,13 @@ public class ChapterController {
 
     @GetMapping("/{id}")
     public ResponseEntity<OkResponseDto<ChapterDto>> getFindChapter(@PathVariable String id) {
-        Chapter chapter = findChapterUseCase.findChapterById(id);
-        ChapterDto chapterDto = chapterDtoMapper.toDto(chapter);
-        return ResponseEntity.ok(OkResponseDto.of(messageService.getMessage("general.success"),chapterDto));
+        try {
+            Chapter chapter = findChapterUseCase.findChapterById(id);
+            ChapterDto chapterDto = chapterDtoMapper.toDto(chapter);
+            return ResponseEntity.ok(OkResponseDto.of(messageService.getMessage("general.success"),chapterDto));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(OkResponseDto.of(e.getMessage(), null));
+        }
+        
     }
 }

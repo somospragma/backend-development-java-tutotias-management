@@ -22,6 +22,8 @@ public class ChapterService implements CreateChapterUseCase, GetAllChaptersUseCa
 
     @Override
     public Chapter createChapter(Chapter chapter) {
+        if (chapter == null) throw new NullPointerException("Chapter cannot be null");
+        
         return chapterRepository.save(chapter);
     }
 

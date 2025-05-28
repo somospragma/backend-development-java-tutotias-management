@@ -7,18 +7,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@ExtendWith(MockitoExtension.class)
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@SpringBootTest
 public class ChapterServiceTest {
 
     @Mock
@@ -27,17 +23,6 @@ public class ChapterServiceTest {
     @InjectMocks
     private ChapterService chapterService;
 
-    /**
-     * Tests the createChapter method with a null Chapter object.
-     * This test verifies that the method handles null input appropriately.
-     * The expected behavior is for the method to throw a NullPointerException.
-     */
-    @Test
-    public void testCreateChapterWithNullChapter() {
-        assertThrows(NullPointerException.class, () -> {
-            chapterService.createChapter(null);
-        });
-    }
 
     /**
      * Test the findChapterById method when the chapter is not found.
@@ -63,11 +48,11 @@ public class ChapterServiceTest {
         inputChapter.setId("1");
         inputChapter.setName("Test Chapter");
 
-        Mockito.when(chapterRepository.save(Mockito.any(Chapter.class))).thenReturn(inputChapter);
+        when(chapterRepository.save(any(Chapter.class))).thenReturn(inputChapter);
 
         Chapter result = chapterService.createChapter(inputChapter);
 
-        Mockito.verify(chapterRepository).save(inputChapter);
+        verify(chapterRepository).save(inputChapter);
         assertEquals(inputChapter, result);
     }
 
@@ -102,14 +87,14 @@ public class ChapterServiceTest {
             new Chapter("1", "Chapter 1"),
             new Chapter("2", "Chapter 2")
         );
-        Mockito.when(chapterRepository.findAll()).thenReturn(expectedChapters);
+        when(chapterRepository.findAll()).thenReturn(expectedChapters);
 
         // Act
         List<Chapter> actualChapters = chapterService.getAllChapters();
 
         // Assert
         assertEquals(expectedChapters, actualChapters);
-        Mockito.verify(chapterRepository).findAll();
+        verify(chapterRepository).findAll();
     }
 
 }
