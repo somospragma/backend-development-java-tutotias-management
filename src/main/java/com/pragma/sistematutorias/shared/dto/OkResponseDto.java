@@ -18,4 +18,8 @@ public class OkResponseDto<T> {
     public static <T> OkResponseDto<T> of(String message, T data) {
         return new OkResponseDto<>(message, data, LocalDateTime.now());
     }
+
+    public static <T> OkResponseDto<T> of(String message ) {
+        return new OkResponseDto<>(message, null,LocalDateTime.now());
+    }
 }
