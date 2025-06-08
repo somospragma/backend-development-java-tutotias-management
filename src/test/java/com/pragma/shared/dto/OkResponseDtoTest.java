@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.pragma.shared.dto.OkResponseDto;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -14,7 +14,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.pragma.shared.dto.ErrorResponseDto;
-import com.pragma.shared.exception.GlobalExceptionHandler;
 import com.pragma.shared.service.MessageService;
 
 import static org.junit.jupiter.api.Assertions.*;
