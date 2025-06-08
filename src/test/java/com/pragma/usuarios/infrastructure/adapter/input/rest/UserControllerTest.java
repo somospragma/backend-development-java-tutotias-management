@@ -178,8 +178,8 @@ class UserControllerTest {
     @Test
     void updateTutoringLimit_WhenUserExistsAndRequestingUserIsTutor_ShouldReturnOk() {
         // Arrange
-        UpdateTutoringLimitDto requestDto = new UpdateTutoringLimitDto("1", 5, "2");
-        when(updateTutoringLimitUseCase.updateTutoringLimit("1", 5, "2")).thenReturn(Optional.of(updatedLimitUser));
+        UpdateTutoringLimitDto requestDto = new UpdateTutoringLimitDto("1", 5);
+        when(updateTutoringLimitUseCase.updateTutoringLimit("1", 5)).thenReturn(Optional.of(updatedLimitUser));
         when(userDtoMapper.toDto(updatedLimitUser)).thenReturn(updatedLimitUserDto);
 
         // Act
@@ -194,8 +194,8 @@ class UserControllerTest {
     @Test
     void updateTutoringLimit_WhenRequestingUserIsNotTutor_ShouldReturnForbidden() {
         // Arrange
-        UpdateTutoringLimitDto requestDto = new UpdateTutoringLimitDto("1", 5, "3");
-        when(updateTutoringLimitUseCase.updateTutoringLimit("1", 5, "3")).thenReturn(Optional.empty());
+        UpdateTutoringLimitDto requestDto = new UpdateTutoringLimitDto("1", 5);
+        when(updateTutoringLimitUseCase.updateTutoringLimit("1", 5)).thenReturn(Optional.empty());
 
         // Act
         ResponseEntity<UserDto> response = userController.updateTutoringLimit(requestDto);
@@ -207,8 +207,8 @@ class UserControllerTest {
     @Test
     void updateTutoringLimit_WhenUserDoesNotExist_ShouldReturnForbidden() {
         // Arrange
-        UpdateTutoringLimitDto requestDto = new UpdateTutoringLimitDto("nonexistent", 5, "2");
-        when(updateTutoringLimitUseCase.updateTutoringLimit(anyString(), anyInt(), anyString())).thenReturn(Optional.empty());
+        UpdateTutoringLimitDto requestDto = new UpdateTutoringLimitDto("nonexistent", 5);
+        when(updateTutoringLimitUseCase.updateTutoringLimit(anyString(), anyInt())).thenReturn(Optional.empty());
 
         // Act
         ResponseEntity<UserDto> response = userController.updateTutoringLimit(requestDto);
