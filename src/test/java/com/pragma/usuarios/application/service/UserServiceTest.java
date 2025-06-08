@@ -10,9 +10,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class UserServiceTest {
@@ -31,29 +33,29 @@ class UserServiceTest {
         
         Chapter chapter = new Chapter("1", "Java");
         testUser = new User();
+        testUser.setId("1");
         testUser.setFirstName("John");
         testUser.setLastName("Doe");
         testUser.setEmail("john.doe@pragma.com");
         testUser.setChapter(chapter);
-        // No establecemos rol ni activeTutoringLimit para verificar que el servicio los establece
+        testUser.setRol(RolUsuario.Tutorado);
+        testUser.setActiveTutoringLimit(0);
     }
 
     @Test
     void createUser_ShouldSetDefaultValues() {
         // Arrange
-        User savedUser = new User();
-        savedUser.setId("1");
-        savedUser.setFirstName(testUser.getFirstName());
-        savedUser.setLastName(testUser.getLastName());
-        savedUser.setEmail(testUser.getEmail());
-        savedUser.setChapter(testUser.getChapter());
-        savedUser.setRol(RolUsuario.Tutorado);
-        savedUser.setActiveTutoringLimit(0);
+        User inputUser = new User();
+        inputUser.setFirstName("John");
+        inputUser.setLastName("Doe");
+        inputUser.setEmail("john.doe@pragma.com");
+        inputUser.setChapter(testUser.getChapter());
+        // No establecemos rol ni activeTutoringLimit para verificar que el servicio los establece
         
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
 
         // Act
-        User result = userService.createUser(testUser);
+        User result = userService.createUser(inputUser);
 
         // Assert
         assertNotNull(result);
@@ -65,5 +67,38 @@ class UserServiceTest {
             user.getRol() == RolUsuario.Tutorado && 
             user.getActiveTutoringLimit() == 0
         ));
+    }
+    
+    @Test
+    void findUserById_WhenUserExists_ShouldReturnUser() {
+        // Arrange
+        when(userRepository.findById("1")).thenReturn(Optional.of(testUser));
+
+        // Act
+        Optional<User> result = userService.findUserById("1");
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(testUser.getId(), result.get().getId());
+        assertEquals(testUser.getFirstName(), result.get().getFirstName());
+        assertEquals(testUser.getLastName(), result.get().getLastName());
+        
+        // Verify repository was called with correct ID
+        verify(userRepository).findById("1");
+    }
+    
+    @Test
+    void findUserById_WhenUserDoesNotExist_ShouldReturnEmpty() {
+        // Arrange
+        when(userRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        // Act
+        Optional<User> result = userService.findUserById("nonexistent");
+
+        // Assert
+        assertFalse(result.isPresent());
+        
+        // Verify repository was called
+        verify(userRepository).findById("nonexistent");
     }
 }
