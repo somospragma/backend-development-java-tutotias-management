@@ -29,8 +29,7 @@ public class UsersEntity implements Serializable {
     @Column(name = "correo", unique = true, nullable = false)
     private String email; //"Correo electrónico único del usuario pragma"
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "chapter")
+    @ManyToOne
     private ChapterEntity chapter; // "chapter principal"
 
     @Column(name = "rol")
