@@ -80,10 +80,11 @@ public class ChapterServiceTest {
 
         when(chapterRepository.findById(id)).thenReturn(Optional.of(expectedChapter));
 
-        Chapter result = chapterService.findChapterById(id);
+        Optional<Chapter> result = chapterService.findChapterById(id);
 
         assertNotNull(result);
-        assertEquals(id, result.getId());
+        assertTrue(result.isPresent());
+        assertEquals(id, result.get().getId());
         verify(chapterRepository, times(1)).findById(id);
     }
 

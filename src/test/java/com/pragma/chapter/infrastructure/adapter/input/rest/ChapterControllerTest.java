@@ -13,6 +13,8 @@ import com.pragma.shared.service.MessageService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -140,7 +142,7 @@ public class ChapterControllerTest {
         Chapter mockChapter = new Chapter();
         ChapterDto mockChapterDto = new ChapterDto();
 
-        when(findChapterUseCase.findChapterById(chapterId)).thenReturn(mockChapter);
+        when(findChapterUseCase.findChapterById(chapterId)).thenReturn(Optional.of(mockChapter));
         when(chapterDtoMapper.toDto(mockChapter)).thenReturn(mockChapterDto);
         when(mockmessageService.getMessage("general.success")).thenReturn(successMessage);
 

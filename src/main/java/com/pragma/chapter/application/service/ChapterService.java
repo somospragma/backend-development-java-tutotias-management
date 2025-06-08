@@ -1,6 +1,7 @@
 package com.pragma.chapter.application.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -31,8 +32,7 @@ public class ChapterService implements CreateChapterUseCase, GetAllChaptersUseCa
     }
     
     @Override
-    public Chapter findChapterById(String id) {
-        return chapterRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(messageService.getMessage("chapter.not.found", id)));
+    public Optional<Chapter> findChapterById(String id) {
+        return chapterRepository.findById(id);
     }
 }

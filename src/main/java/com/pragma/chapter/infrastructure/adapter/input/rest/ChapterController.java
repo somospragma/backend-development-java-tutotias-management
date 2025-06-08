@@ -2,6 +2,7 @@ package com.pragma.chapter.infrastructure.adapter.input.rest;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,8 +75,12 @@ public class ChapterController {
     @GetMapping("/{id}")
     public ResponseEntity<OkResponseDto<ChapterDto>> getFindChapter(@PathVariable String id) {
         try {
-            Chapter chapter = findChapterUseCase.findChapterById(id);
-            ChapterDto chapterDto = chapterDtoMapper.toDto(chapter);
+            Optional<Chapter> chapter = findChapterUseCase.findChapterById(id);
+            if(chapter.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(OkResponseDto.of(messageService.getMessage("chapter.not.found"), null));
+            }
+            ChapterDto chapterDto = chapterDtoMapper.toDto(chapter.get());
             return ResponseEntity.ok(OkResponseDto.of(messageService.getMessage("general.success"),chapterDto));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(OkResponseDto.of(e.getMessage(), null));
