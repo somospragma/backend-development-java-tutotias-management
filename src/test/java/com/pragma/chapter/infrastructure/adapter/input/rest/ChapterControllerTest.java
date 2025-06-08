@@ -90,6 +90,7 @@ public class ChapterControllerTest {
         ResponseEntity<OkResponseDto<ChapterDto>> response = chapterController.getFindChapter(nonExistentId);
 
         // Assert
+        assertNotNull(response.getBody());
         assertNull(response.getBody().getData());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
@@ -201,6 +202,8 @@ public class ChapterControllerTest {
                 .path("/{id}")
                 .buildAndExpand("123")
                 .toUriString();
+        assertNotNull(response.getHeaders());
+        assertNotNull(response.getHeaders().getLocation());
         assertEquals(expectedLocation, response.getHeaders().getLocation().toString());
     }
 

@@ -1,4 +1,4 @@
-package com.pragma.sistematutorias.shared.dto;
+package com.pragma.shared.dto;
 
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;

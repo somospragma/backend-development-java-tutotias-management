@@ -1,5 +1,6 @@
-package com.pragma.sistematutorias.shared.service;
+package com.pragma.shared.service;
 
+import jakarta.validation.constraints.Null;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;

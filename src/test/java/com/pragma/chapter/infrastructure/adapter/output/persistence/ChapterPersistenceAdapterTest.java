@@ -59,7 +59,6 @@ public class ChapterPersistenceAdapterTest {
 
     /**
      * Test case for findAll method of ChapterPersistenceAdapter
-     * 
      * This test verifies that the findAll method correctly retrieves all chapters from the repository,
      * maps them to domain objects, and returns them as a list.
      */

@@ -1,4 +1,4 @@
-package com.pragma.sistematutorias.shared.exception;
+package com.pragma.shared.exception;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +54,7 @@ public class GlobalExceptionHandlerTest {
         ResponseEntity<ErrorResponseDto> response = globalExceptionHandler.handleGenericException(testException);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals(expectedErrorMessage, response.getBody().getMessage());
     }
 
