@@ -5,9 +5,13 @@ import com.pragma.usuarios.domain.model.User;
 import com.pragma.usuarios.domain.model.enums.RolUsuario;
 import com.pragma.usuarios.domain.port.input.CreateUserUseCase;
 import com.pragma.usuarios.domain.port.input.FindUserByIdUseCase;
+import com.pragma.usuarios.domain.port.input.UpdateTutoringLimitUseCase;
+import com.pragma.usuarios.domain.port.input.UpdateUserRoleUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateUserUseCase;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.CreateUserDto;
+import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UpdateTutoringLimitDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UpdateUserRequestDto;
+import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UpdateUserRoleDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.mapper.UserDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +27,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +41,12 @@ class UserControllerTest {
     
     @Mock
     private FindUserByIdUseCase findUserByIdUseCase;
+    
+    @Mock
+    private UpdateUserRoleUseCase updateUserRoleUseCase;
+    
+    @Mock
+    private UpdateTutoringLimitUseCase updateTutoringLimitUseCase;
 
     @Mock
     private UserDtoMapper userDtoMapper;
@@ -45,6 +56,10 @@ class UserControllerTest {
 
     private User testUser;
     private UserDto testUserDto;
+    private User updatedRoleUser;
+    private UserDto updatedRoleUserDto;
+    private User updatedLimitUser;
+    private UserDto updatedLimitUserDto;
 
     @BeforeEach
     void setUp() {
@@ -67,6 +82,40 @@ class UserControllerTest {
         testUserDto.setEmail("john.doe@pragma.com");
         testUserDto.setRol(RolUsuario.Tutorado);
         testUserDto.setActiveTutoringLimit(0);
+        
+        updatedRoleUser = new User();
+        updatedRoleUser.setId("1");
+        updatedRoleUser.setFirstName("John");
+        updatedRoleUser.setLastName("Doe");
+        updatedRoleUser.setEmail("john.doe@pragma.com");
+        updatedRoleUser.setChapter(chapter);
+        updatedRoleUser.setRol(RolUsuario.Tutor);
+        updatedRoleUser.setActiveTutoringLimit(0);
+        
+        updatedRoleUserDto = new UserDto();
+        updatedRoleUserDto.setId("1");
+        updatedRoleUserDto.setFirstName("John");
+        updatedRoleUserDto.setLastName("Doe");
+        updatedRoleUserDto.setEmail("john.doe@pragma.com");
+        updatedRoleUserDto.setRol(RolUsuario.Tutor);
+        updatedRoleUserDto.setActiveTutoringLimit(0);
+        
+        updatedLimitUser = new User();
+        updatedLimitUser.setId("1");
+        updatedLimitUser.setFirstName("John");
+        updatedLimitUser.setLastName("Doe");
+        updatedLimitUser.setEmail("john.doe@pragma.com");
+        updatedLimitUser.setChapter(chapter);
+        updatedLimitUser.setRol(RolUsuario.Tutorado);
+        updatedLimitUser.setActiveTutoringLimit(5);
+        
+        updatedLimitUserDto = new UserDto();
+        updatedLimitUserDto.setId("1");
+        updatedLimitUserDto.setFirstName("John");
+        updatedLimitUserDto.setLastName("Doe");
+        updatedLimitUserDto.setEmail("john.doe@pragma.com");
+        updatedLimitUserDto.setRol(RolUsuario.Tutorado);
+        updatedLimitUserDto.setActiveTutoringLimit(5);
     }
 
     @Test
@@ -95,5 +144,76 @@ class UserControllerTest {
 
         // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+    
+    @Test
+    void updateUserRole_WhenUserExists_ShouldReturnOk() {
+        // Arrange
+        UpdateUserRoleDto requestDto = new UpdateUserRoleDto("1", RolUsuario.Tutor);
+        when(updateUserRoleUseCase.updateUserRole("1", RolUsuario.Tutor)).thenReturn(Optional.of(updatedRoleUser));
+        when(userDtoMapper.toDto(updatedRoleUser)).thenReturn(updatedRoleUserDto);
+
+        // Act
+        ResponseEntity<UserDto> response = userController.updateUserRole(requestDto);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(RolUsuario.Tutor, response.getBody().getRol());
+    }
+    
+    @Test
+    void updateUserRole_WhenUserDoesNotExist_ShouldReturnNotFound() {
+        // Arrange
+        UpdateUserRoleDto requestDto = new UpdateUserRoleDto("nonexistent", RolUsuario.Tutor);
+        when(updateUserRoleUseCase.updateUserRole(anyString(), any(RolUsuario.class))).thenReturn(Optional.empty());
+
+        // Act
+        ResponseEntity<UserDto> response = userController.updateUserRole(requestDto);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+    
+    @Test
+    void updateTutoringLimit_WhenUserExistsAndRequestingUserIsTutor_ShouldReturnOk() {
+        // Arrange
+        UpdateTutoringLimitDto requestDto = new UpdateTutoringLimitDto("1", 5, "2");
+        when(updateTutoringLimitUseCase.updateTutoringLimit("1", 5, "2")).thenReturn(Optional.of(updatedLimitUser));
+        when(userDtoMapper.toDto(updatedLimitUser)).thenReturn(updatedLimitUserDto);
+
+        // Act
+        ResponseEntity<UserDto> response = userController.updateTutoringLimit(requestDto);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(5, response.getBody().getActiveTutoringLimit());
+    }
+    
+    @Test
+    void updateTutoringLimit_WhenRequestingUserIsNotTutor_ShouldReturnForbidden() {
+        // Arrange
+        UpdateTutoringLimitDto requestDto = new UpdateTutoringLimitDto("1", 5, "3");
+        when(updateTutoringLimitUseCase.updateTutoringLimit("1", 5, "3")).thenReturn(Optional.empty());
+
+        // Act
+        ResponseEntity<UserDto> response = userController.updateTutoringLimit(requestDto);
+
+        // Assert
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+    
+    @Test
+    void updateTutoringLimit_WhenUserDoesNotExist_ShouldReturnForbidden() {
+        // Arrange
+        UpdateTutoringLimitDto requestDto = new UpdateTutoringLimitDto("nonexistent", 5, "2");
+        when(updateTutoringLimitUseCase.updateTutoringLimit(anyString(), anyInt(), anyString())).thenReturn(Optional.empty());
+
+        // Act
+        ResponseEntity<UserDto> response = userController.updateTutoringLimit(requestDto);
+
+        // Assert
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
 }
