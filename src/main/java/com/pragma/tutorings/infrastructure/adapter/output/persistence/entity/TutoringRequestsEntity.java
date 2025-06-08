@@ -22,7 +22,7 @@ public class TutoringRequestsEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(name = "tutee_id", nullable = false)
+    @ManyToOne
     private UsersEntity tuteeId; // "ID del usuario que realiza la solicitud"
 
     @ManyToMany
