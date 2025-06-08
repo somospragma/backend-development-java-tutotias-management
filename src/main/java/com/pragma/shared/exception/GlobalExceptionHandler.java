@@ -31,20 +31,20 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        return new ErrorResponseDto(messageService.getMessage("general.validation.failed"), errors);
+        return ErrorResponseDto.of(messageService.getMessage("general.validation.failed"), errors);
     }
     
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponseDto> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponseDto(ex.getMessage()));
+                .body(ErrorResponseDto.of(ex.getMessage()));
     }
     
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGenericException(Exception ex) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponseDto(messageService.getMessage("general.error", ex.getMessage())));
+                .body(ErrorResponseDto.of(messageService.getMessage("general.error", ex.getMessage())));
     }
 }

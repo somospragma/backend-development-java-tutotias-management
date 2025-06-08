@@ -18,7 +18,7 @@ public class ErrorResponseDtoTest {
     @Test
     public void testErrorResponseDtoConstructorWithMessage() {
         String testMessage = "Test error message";
-        ErrorResponseDto errorResponse = new ErrorResponseDto(testMessage);
+        ErrorResponseDto errorResponse = ErrorResponseDto.of(testMessage);
 
         assertNotNull(errorResponse);
         assertEquals(testMessage, errorResponse.getMessage());
@@ -39,7 +39,7 @@ public class ErrorResponseDtoTest {
         errors.put("field1", "Error 1");
         errors.put("field2", "Error 2");
 
-        ErrorResponseDto errorResponseDto = new ErrorResponseDto(message, errors);
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.of(message, errors);
 
         assertNotNull(errorResponseDto);
         assertEquals(message, errorResponseDto.getMessage());
@@ -58,7 +58,7 @@ public class ErrorResponseDtoTest {
     public void testErrorResponseDtoWithNullErrors() {
         String message = "Test error message";
 
-        ErrorResponseDto dto = new ErrorResponseDto(message, null);
+        ErrorResponseDto dto = ErrorResponseDto.of(message, null);
 
         assertEquals(message, dto.getMessage());
         assertNotNull(dto.getTimestamp());
@@ -71,7 +71,7 @@ public class ErrorResponseDtoTest {
      */
     @Test
     public void testErrorResponseDtoWithNullMessage() {
-        ErrorResponseDto errorResponseDto = new ErrorResponseDto(null);
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.of(null);
         assertNull(errorResponseDto.getMessage(), "Message should be null");
         assertNotNull(errorResponseDto.getTimestamp(), "Timestamp should not be null");
         assertTrue(errorResponseDto.getTimestamp().isBefore(LocalDateTime.now()) || 
@@ -89,7 +89,7 @@ public class ErrorResponseDtoTest {
         Map<String, String> errors = new HashMap<>();
         errors.put("field1", "error1");
 
-        ErrorResponseDto dto = new ErrorResponseDto(null, errors);
+        ErrorResponseDto dto = ErrorResponseDto.of(null, errors);
 
         assertNull(dto.getMessage());
         assertNotNull(dto.getTimestamp());
