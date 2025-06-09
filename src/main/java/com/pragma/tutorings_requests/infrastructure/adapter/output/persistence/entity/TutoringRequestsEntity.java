@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -34,7 +35,7 @@ public class TutoringRequestsEntity implements Serializable {
         joinColumns = @JoinColumn(name = "tutoring_request_id"),
         inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    private List<SkillEntity> skills = new ArrayList<>(); // "habilidades solicitada"
+    private List<SkillEntity> skills; // "habilidades solicitada"
 
     @Column(name = "needs_description", nullable = false)
     private String needsDescription; // "Descripción de la necesidad de tutoría"

@@ -1,5 +1,8 @@
 package com.pragma.tutorings_requests.infrastructure.adapter.output.persistence;
 
+import com.pragma.skills.infrastructure.adapter.output.persistence.entity.SkillEntity;
+import com.pragma.skills.infrastructure.adapter.output.persistence.mapper.SkillMapper;
+import com.pragma.skills.infrastructure.adapter.output.persistence.repository.SpringDataSkillRepository;
 import com.pragma.tutorings_requests.domain.model.TutoringRequest;
 import com.pragma.tutorings_requests.domain.port.output.TutoringRequestRepository;
 import com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.entity.TutoringRequestsEntity;
@@ -7,7 +10,9 @@ import com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.m
 import com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.repository.SpringDataTutoringRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,14 +22,32 @@ import java.util.stream.Collectors;
 public class TutoringRequestPersistenceAdapter implements TutoringRequestRepository {
 
     private final SpringDataTutoringRequestRepository repository;
+    private final SpringDataSkillRepository skillRepository;
     private final TutoringRequestMapper mapper;
+    private final SkillMapper skillMapper;
 
+    @Transactional
     @Override
     public TutoringRequest save(TutoringRequest tutoringRequest) {
         try {
             TutoringRequestsEntity entity = mapper.toEntity(tutoringRequest);
-            entity.setAssignedTutoringId(null);
-            TutoringRequestsEntity savedEntity = repository.saveAndFlush(entity);
+            
+            // Manejar la relación ManyToMany con Skills
+            if (entity.getSkills() != null && !entity.getSkills().isEmpty()) {
+                List<SkillEntity> managedSkills = new ArrayList<>();
+
+                for (SkillEntity skill : entity.getSkills()) {
+                    // Buscar la habilidad existente por ID
+                    Optional<SkillEntity> existingSkill = skillRepository.findById(skill.getId());
+                    // Usar la entidad gestionada desde la base de datos
+                    existingSkill.ifPresent(managedSkills::add);
+                }
+
+                // Reemplazar la lista de habilidades con las entidades gestionadas
+                entity.setSkills(managedSkills);
+            }
+            
+            TutoringRequestsEntity savedEntity = repository.save(entity);
             return mapper.toDomain(savedEntity);
         } catch (Exception e) {
             throw new RuntimeException("Error al guardar la solicitud de tutoría: " + e.getMessage(), e);

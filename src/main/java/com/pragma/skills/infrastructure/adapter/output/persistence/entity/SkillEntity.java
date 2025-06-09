@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "skills")
@@ -21,4 +22,5 @@ public class SkillEntity {
     
     @ManyToMany(mappedBy = "skills")
     private List<TutoringEntity> tutorings;
+
 }

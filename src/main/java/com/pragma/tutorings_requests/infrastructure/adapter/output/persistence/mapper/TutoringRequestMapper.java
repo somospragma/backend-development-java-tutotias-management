@@ -23,38 +23,11 @@ import java.util.stream.Collectors;
 )
 public abstract class TutoringRequestMapper {
 
-    @Autowired
-    protected SpringDataSkillRepository skillRepository;
-    
-    @Autowired
-    protected SpringDataUserRepository userRepository;
-
     @Mapping(target = "assignedTutoringId", ignore = true)
-    @Mapping(target = "skills", expression = "java(mapSkills(tutoringRequest))")
-    @Mapping(target = "tutee", expression = "java(mapUser(tutoringRequest))")
     public abstract TutoringRequestsEntity toEntity(TutoringRequest tutoringRequest);
 
     @Mapping(target = "skills", source = "skills")
     @Mapping(target = "tutee", source = "tutee")
     public abstract TutoringRequest toDomain(TutoringRequestsEntity entity);
-    
-    protected List<SkillEntity> mapSkills(TutoringRequest tutoringRequest) {
-        if (tutoringRequest.getSkills() == null || tutoringRequest.getSkills().isEmpty()) {
-            return new ArrayList<>();
-        }
-        
-        List<String> skillIds = tutoringRequest.getSkills().stream()
-                .map(Skill::getId)
-                .collect(Collectors.toList());
-                
-        return skillRepository.findAllById(skillIds);
-    }
-    
-    protected UsersEntity mapUser(TutoringRequest tutoringRequest) {
-        if (tutoringRequest.getTutee() == null || tutoringRequest.getTutee().getId() == null) {
-            return null;
-        }
-        
-        return userRepository.findById(tutoringRequest.getTutee().getId()).orElse(null);
-    }
+
 }
