@@ -3,8 +3,10 @@ package com.pragma.tutorings_requests.infrastructure.adapter.input.rest;
 import com.pragma.shared.dto.OkResponseDto;
 import com.pragma.tutorings_requests.domain.model.TutoringRequest;
 import com.pragma.tutorings_requests.domain.port.input.CreateTutoringRequestUseCase;
+import com.pragma.tutorings_requests.domain.port.input.UpdateTutoringRequestStatusUseCase;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.CreateTutoringRequestDto;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.TutoringRequestDto;
+import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.UpdateTutoringRequestStatusDto;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.mapper.TutoringRequestDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class TutoringRequestController {
 
     private final CreateTutoringRequestUseCase createTutoringRequestUseCase;
+    private final UpdateTutoringRequestStatusUseCase updateTutoringRequestStatusUseCase;
     private final TutoringRequestDtoMapper tutoringRequestDtoMapper;
 
     @PostMapping
@@ -41,6 +44,35 @@ public class TutoringRequestController {
                     .body(OkResponseDto.of("Solicitud de tutoría creada exitosamente", responseDto));
         } catch (Exception e) {
             log.error("Error al crear solicitud de tutoría", e);
+            throw e;
+        }
+    }
+    
+    @PatchMapping("/{requestId}/status")
+    public ResponseEntity<OkResponseDto<TutoringRequestDto>> updateTutoringRequestStatus(
+            @PathVariable String requestId,
+            @Valid @RequestBody UpdateTutoringRequestStatusDto updateStatusDto) {
+        
+        try {
+            log.info("Actualizando estado de solicitud de tutoría con ID: {} a estado: {}", 
+                    requestId, updateStatusDto.getStatus());
+            
+            TutoringRequest updatedRequest = updateTutoringRequestStatusUseCase
+                    .updateStatus(requestId, updateStatusDto.getStatus());
+            
+            TutoringRequestDto responseDto = tutoringRequestDtoMapper.toDto(updatedRequest);
+            
+            log.info("Estado de solicitud de tutoría actualizado exitosamente a: {}", 
+                    updatedRequest.getRequestStatus());
+            
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(OkResponseDto.of("Estado de solicitud de tutoría actualizado exitosamente", responseDto));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            log.error("Error de validación al actualizar estado de solicitud: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Error al actualizar estado de solicitud de tutoría", e);
             throw e;
         }
     }

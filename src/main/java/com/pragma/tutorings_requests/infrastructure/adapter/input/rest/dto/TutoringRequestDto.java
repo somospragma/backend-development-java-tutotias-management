@@ -1,6 +1,7 @@
 package com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto;
 
 import com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto;
+import com.pragma.tutorings_requests.domain.model.enums.RequestStatus;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,5 +20,5 @@ public class TutoringRequestDto {
     // Lista de habilidades opcional
     private List<SkillDto> skill;
     private String needsDescription;
-    private String requestStatus;
+    private RequestStatus requestStatus;
 }
