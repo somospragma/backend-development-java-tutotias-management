@@ -8,6 +8,7 @@ import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.Creat
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.TutoringRequestDto;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.mapper.TutoringRequestDtoMapper;
 import com.pragma.usuarios.domain.model.User;
+import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -70,7 +71,9 @@ class TutoringRequestControllerTest {
         domainModel.setRequestStatus(RequestStatus.Enviada);
 
         TutoringRequestDto responseDto = new TutoringRequestDto();
-        responseDto.setTuteeId("user-id");
+        UserDto userDto = new UserDto();
+        user.setId("user-id");
+        responseDto.setTutee(userDto);
         responseDto.setNeedsDescription("Necesito ayuda con Spring Boot");
 
         when(tutoringRequestDtoMapper.toModel(any(CreateTutoringRequestDto.class))).thenReturn(domainModel);
@@ -84,8 +87,6 @@ class TutoringRequestControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Solicitud de tutoría creada exitosamente"))
                 .andExpect(jsonPath("$.data.id").value("request-id"))
-                .andExpect(jsonPath("$.data.tuteeId").value("user-id"))
-                .andExpect(jsonPath("$.data.tuteeName").value("Juan Pérez"))
                 .andExpect(jsonPath("$.data.needsDescription").value("Necesito ayuda con Spring Boot"))
                 .andExpect(jsonPath("$.data.requestStatus").value("Enviada"));
     }

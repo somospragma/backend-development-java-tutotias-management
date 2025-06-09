@@ -14,10 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TutoringRequestDto {
+    private String id;
     private UserDto tutee;
-    
     // Lista de habilidades opcional
     private List<SkillDto> skill;
-    
     private String needsDescription;
+    private String requestStatus;
 }
