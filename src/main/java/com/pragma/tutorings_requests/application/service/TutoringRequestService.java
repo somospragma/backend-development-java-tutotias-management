@@ -3,6 +3,7 @@ package com.pragma.tutorings_requests.application.service;
 import com.pragma.tutorings_requests.domain.model.TutoringRequest;
 import com.pragma.tutorings_requests.domain.model.enums.RequestStatus;
 import com.pragma.tutorings_requests.domain.port.input.CreateTutoringRequestUseCase;
+import com.pragma.tutorings_requests.domain.port.input.GetTutoringRequestsUseCase;
 import com.pragma.tutorings_requests.domain.port.input.UpdateTutoringRequestStatusUseCase;
 import com.pragma.tutorings_requests.domain.port.output.TutoringRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +11,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TutoringRequestService implements CreateTutoringRequestUseCase, UpdateTutoringRequestStatusUseCase {
+public class TutoringRequestService implements 
+        CreateTutoringRequestUseCase, 
+        UpdateTutoringRequestStatusUseCase,
+        GetTutoringRequestsUseCase {
 
     private final TutoringRequestRepository tutoringRequestRepository;
 
@@ -69,6 +74,29 @@ public class TutoringRequestService implements CreateTutoringRequestUseCase, Upd
         } catch (Exception e) {
             log.error("Error al actualizar el estado de la solicitud de tutoría: {}", e.getMessage(), e);
             throw e;
+        }
+    }
+    
+    @Override
+    public List<TutoringRequest> getAllTutoringRequests() {
+        try {
+            log.info("Obteniendo todas las solicitudes de tutoría");
+            return tutoringRequestRepository.findAll();
+        } catch (Exception e) {
+            log.error("Error al obtener todas las solicitudes de tutoría: {}", e.getMessage(), e);
+            throw new RuntimeException("Error al obtener las solicitudes de tutoría", e);
+        }
+    }
+
+    @Override
+    public List<TutoringRequest> getTutoringRequestsWithFilters(String tuteeId, String skillId, RequestStatus status) {
+        try {
+            log.info("Obteniendo solicitudes de tutoría con filtros - tuteeId: {}, skillId: {}, status: {}", 
+                    tuteeId, skillId, status);
+            return tutoringRequestRepository.findWithFilters(tuteeId, skillId, status);
+        } catch (Exception e) {
+            log.error("Error al obtener solicitudes de tutoría con filtros: {}", e.getMessage(), e);
+            throw new RuntimeException("Error al obtener solicitudes con filtros", e);
         }
     }
 }

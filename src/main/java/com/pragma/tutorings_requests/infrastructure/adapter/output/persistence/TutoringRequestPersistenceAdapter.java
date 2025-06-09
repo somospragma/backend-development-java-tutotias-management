@@ -4,6 +4,7 @@ import com.pragma.skills.infrastructure.adapter.output.persistence.entity.SkillE
 import com.pragma.skills.infrastructure.adapter.output.persistence.mapper.SkillMapper;
 import com.pragma.skills.infrastructure.adapter.output.persistence.repository.SpringDataSkillRepository;
 import com.pragma.tutorings_requests.domain.model.TutoringRequest;
+import com.pragma.tutorings_requests.domain.model.enums.RequestStatus;
 import com.pragma.tutorings_requests.domain.port.output.TutoringRequestRepository;
 import com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.entity.TutoringRequestsEntity;
 import com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.mapper.TutoringRequestMapper;
@@ -63,6 +64,13 @@ public class TutoringRequestPersistenceAdapter implements TutoringRequestReposit
     @Override
     public List<TutoringRequest> findAll() {
         return repository.findAll().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<TutoringRequest> findWithFilters(String tuteeId, String skillId, RequestStatus status) {
+        return repository.findWithFilters(tuteeId, skillId, status).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }

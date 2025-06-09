@@ -3,9 +3,11 @@ package com.pragma.tutorings_requests.infrastructure.adapter.input.rest;
 import com.pragma.shared.dto.OkResponseDto;
 import com.pragma.tutorings_requests.domain.model.TutoringRequest;
 import com.pragma.tutorings_requests.domain.port.input.CreateTutoringRequestUseCase;
+import com.pragma.tutorings_requests.domain.port.input.GetTutoringRequestsUseCase;
 import com.pragma.tutorings_requests.domain.port.input.UpdateTutoringRequestStatusUseCase;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.CreateTutoringRequestDto;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.TutoringRequestDto;
+import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.TutoringRequestFilterDto;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.UpdateTutoringRequestStatusDto;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.mapper.TutoringRequestDtoMapper;
 import jakarta.validation.Valid;
@@ -15,6 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/v1/tutoring-requests")
 @RequiredArgsConstructor
@@ -23,6 +28,7 @@ public class TutoringRequestController {
 
     private final CreateTutoringRequestUseCase createTutoringRequestUseCase;
     private final UpdateTutoringRequestStatusUseCase updateTutoringRequestStatusUseCase;
+    private final GetTutoringRequestsUseCase getTutoringRequestsUseCase;
     private final TutoringRequestDtoMapper tutoringRequestDtoMapper;
 
     @PostMapping
@@ -73,6 +79,39 @@ public class TutoringRequestController {
             throw e;
         } catch (Exception e) {
             log.error("Error al actualizar estado de solicitud de tutoría", e);
+            throw e;
+        }
+    }
+    
+    @GetMapping
+    public ResponseEntity<OkResponseDto<List<TutoringRequestDto>>> getTutoringRequests(
+            TutoringRequestFilterDto filterDto) {
+        
+        try {
+            log.info("Obteniendo solicitudes de tutoría con filtros: {}", filterDto);
+            
+            List<TutoringRequest> requests;
+            
+            if (filterDto == null) {
+                requests = getTutoringRequestsUseCase.getAllTutoringRequests();
+            } else {
+                requests = getTutoringRequestsUseCase.getTutoringRequestsWithFilters(
+                        filterDto.getTuteeId(), 
+                        filterDto.getSkillId(), 
+                        filterDto.getStatus());
+            }
+            
+            List<TutoringRequestDto> responseDtos = requests.stream()
+                    .map(tutoringRequestDtoMapper::toDto)
+                    .collect(Collectors.toList());
+            
+            log.info("Se encontraron {} solicitudes de tutoría", responseDtos.size());
+            
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(OkResponseDto.of("Solicitudes de tutoría obtenidas exitosamente", responseDtos));
+        } catch (Exception e) {
+            log.error("Error al obtener solicitudes de tutoría", e);
             throw e;
         }
     }

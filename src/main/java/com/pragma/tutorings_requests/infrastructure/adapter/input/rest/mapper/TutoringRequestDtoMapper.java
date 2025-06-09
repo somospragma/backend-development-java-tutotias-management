@@ -12,6 +12,7 @@ import com.pragma.usuarios.infrastructure.adapter.input.rest.mapper.UserDtoMappe
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = "spring",
@@ -30,8 +31,8 @@ public abstract class  TutoringRequestDtoMapper {
     @Mapping(target = "requestStatus", ignore = true)
     public abstract TutoringRequest toModel(CreateTutoringRequestDto dto);
     
+    @Mapping(target = "skills", source = "skills")
     public abstract TutoringRequestDto toDto(TutoringRequest tutoringRequest);
-
 
     @AfterMapping
     protected void findAndSetTutte(CreateTutoringRequestDto dto, @MappingTarget TutoringRequest tutoringRequest) {
@@ -55,5 +56,11 @@ public abstract class  TutoringRequestDtoMapper {
             tutoringRequest.setSkills(skills);
         }
     }
-
+    
+    @AfterMapping
+    protected void ensureSkillsNotNull(@MappingTarget TutoringRequestDto dto) {
+        if (dto.getSkills() == null) {
+            dto.setSkills(new ArrayList<>());
+        }
+    }
 }
