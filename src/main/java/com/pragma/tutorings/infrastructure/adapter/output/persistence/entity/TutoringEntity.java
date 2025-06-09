@@ -29,7 +29,7 @@ public class TutoringEntity implements Serializable {
     private UsersEntity tuteeId; // "ID del usuario que actúa como tutorado"
 
     @ManyToMany
-    private List<SkillsEntity> skills; // "skills que se van a tutorar"
+    private List<SkillEntity> skills; // "skills que se van a tutorar"
 
     @Column(name = "start_date")
     private Date start_date; // "Fecha de inicio de la tutoría"

@@ -1,7 +1,6 @@
 package com.pragma.tutorings.infrastructure.adapter.output.persistence.entity;
 
 import com.pragma.tutorings.domain.model.enums.RequestStatus;
-import com.pragma.usuarios.domain.model.enums.RolUsuario;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.entity.UsersEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,7 +25,7 @@ public class TutoringRequestsEntity {
     private UsersEntity tuteeId; // "ID del usuario que realiza la solicitud"
 
     @ManyToMany
-    private List<SkillsEntity> skills; // "habilidades solicitada"
+    private List<SkillEntity> skills; // "habilidades solicitada"
 
     @Column(name = "needs_description", nullable = false)
     private String needsDescription; // "Descripción de la necesidad de tutoría"
