@@ -1,0 +1,48 @@
+# Archivos y directorios de Git
+.git
+.gitignore
+.gitattributes
+
+# Archivos de IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+.vscode/
+
+# Directorios de compilación
+target/
+!target/*.jar
+build/
+out/
+
+# Logs
+logs/
+*.log
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de documentación
+README.md
+HELP.md
+diagrama.md
+
+# Archivos de prueba
+src/test/
+
+# Base de datos local
+mydatabase.db
+
+# Otros archivos que no son necesarios en la imagen
+mvnw.cmd
