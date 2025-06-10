@@ -3,6 +3,7 @@ package com.pragma.tutorings_requests.infrastructure.adapter.output.persistence;
 import com.pragma.skills.infrastructure.adapter.output.persistence.entity.SkillEntity;
 import com.pragma.skills.infrastructure.adapter.output.persistence.mapper.SkillMapper;
 import com.pragma.skills.infrastructure.adapter.output.persistence.repository.SpringDataSkillRepository;
+import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import com.pragma.tutorings_requests.domain.model.TutoringRequest;
 import com.pragma.tutorings_requests.domain.model.enums.RequestStatus;
 import com.pragma.tutorings_requests.domain.port.output.TutoringRequestRepository;
@@ -48,7 +49,17 @@ public class TutoringRequestPersistenceAdapter implements TutoringRequestReposit
                 entity.setSkills(managedSkills);
             }
             
+            // Guardar la entidad sin la referencia a la tutoría
+            entity.setAssignedTutoringId(null);
             TutoringRequestsEntity savedEntity = repository.save(entity);
+            
+            // Si hay un ID de tutoría asignado, actualizarlo mediante SQL nativo
+            if (tutoringRequest.getAssignedTutoringId() != null && tutoringRequest.getId() != null) {
+                repository.updateAssignedTutoringId(tutoringRequest.getId(), tutoringRequest.getAssignedTutoringId());
+                // Recargar la entidad para obtener los cambios
+                savedEntity = repository.findById(tutoringRequest.getId()).orElse(savedEntity);
+            }
+            
             return mapper.toDomain(savedEntity);
         } catch (Exception e) {
             throw new RuntimeException("Error al guardar la solicitud de tutoría: " + e.getMessage(), e);

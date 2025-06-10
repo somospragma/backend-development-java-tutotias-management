@@ -28,6 +28,11 @@ public abstract class TutoringRequestMapper {
 
     @Mapping(target = "skills", source = "skills")
     @Mapping(target = "tutee", source = "tutee")
+    @Mapping(target = "assignedTutoringId", expression = "java(mapAssignedTutoringId(entity))")
     public abstract TutoringRequest toDomain(TutoringRequestsEntity entity);
+    
+    protected String mapAssignedTutoringId(TutoringRequestsEntity entity) {
+        return entity.getAssignedTutoringId() != null ? entity.getAssignedTutoringId().getId() : null;
+    }
 
 }

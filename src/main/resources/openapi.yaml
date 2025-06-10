@@ -1,0 +1,981 @@
+openapi: "3.0.1"
+info:
+  title: "API Documentation"
+  version: "1.0"
+paths:
+  /api/v1/tutoring-requests:
+    get:
+      summary: "getTutoringRequests"
+      description: "getTutoringRequests"
+      parameters:
+      - name: "tuteeId"
+        in: "query"
+        description: ""
+        required: false
+        schema:
+          type: "string"
+          nullable: false
+      - name: "skillId"
+        in: "query"
+        description: ""
+        required: false
+        schema:
+          type: "string"
+          nullable: false
+      - name: "status"
+        in: "query"
+        description: "Enviada :Enviada\nAprobada :Aprobada\nAsignada :Asignada\nRechazada\
+          \ :Rechazada"
+        required: false
+        schema:
+          type: "string"
+          description: "[{value=Enviada, name=Enviada, description=Enviada}, {value=Aprobada,\
+            \ name=Aprobada, description=Aprobada}, {value=Asignada, name=Asignada,\
+            \ description=Asignada}, {value=Rechazada, name=Rechazada, description=Rechazada}]"
+          nullable: false
+          enum:
+          - "Enviada"
+          - "Aprobada"
+          - "Asignada"
+          - "Rechazada"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    description: ""
+                  data:
+                    type: "array"
+                    description: ""
+                    items:
+                      type: "object"
+                      properties:
+                        id:
+                          type: "string"
+                          description: ""
+                        tutee:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                              description: ""
+                            firstName:
+                              type: "string"
+                              description: ""
+                            lastName:
+                              type: "string"
+                              description: ""
+                            email:
+                              type: "string"
+                              description: ""
+                            chapter:
+                              type: "object"
+                              properties:
+                                id:
+                                  type: "string"
+                                  description: ""
+                                name:
+                                  type: "string"
+                                  description: ""
+                              description: ""
+                            rol:
+                              type: "string"
+                              description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                              enum:
+                              - "Tutor"
+                              - "Tutorado"
+                              - "Administrador"
+                            activeTutoringLimit:
+                              type: "integer"
+                              description: ""
+                          description: ""
+                        skills:
+                          type: "array"
+                          description: ""
+                          items:
+                            type: "object"
+                            properties:
+                              id:
+                                type: "string"
+                                description: ""
+                              name:
+                                type: "string"
+                                description: ""
+                            description: "com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto"
+                        needsDescription:
+                          type: "string"
+                          description: ""
+                        requestStatus:
+                          type: "string"
+                          description: "{Enviada=Enviada, Aprobada=Aprobada, Asignada=Asignada,\
+                            \ Rechazada=Rechazada}"
+                          enum:
+                          - "Enviada"
+                          - "Aprobada"
+                          - "Asignada"
+                          - "Rechazada"
+                      description: "com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.TutoringRequestDto"
+                  timestamp:
+                    type: "string"
+                    description: ""
+  /api/v1/tutoring-requests/{requestId}/status:
+    patch:
+      summary: "updateTutoringRequestStatus"
+      description: "updateTutoringRequestStatus"
+      parameters:
+      - name: "requestId"
+        in: "path"
+        description: ""
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "status"
+              type: "object"
+              properties:
+                status:
+                  type: "string"
+                  description: "{Enviada=Enviada, Aprobada=Aprobada, Asignada=Asignada,\
+                    \ Rechazada=Rechazada}"
+                  enum:
+                  - "Enviada"
+                  - "Aprobada"
+                  - "Asignada"
+                  - "Rechazada"
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    description: ""
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      tutee:
+                        type: "object"
+                        properties:
+                          id:
+                            type: "string"
+                            description: ""
+                          firstName:
+                            type: "string"
+                            description: ""
+                          lastName:
+                            type: "string"
+                            description: ""
+                          email:
+                            type: "string"
+                            description: ""
+                          chapter:
+                            type: "object"
+                            properties:
+                              id:
+                                type: "string"
+                                description: ""
+                              name:
+                                type: "string"
+                                description: ""
+                            description: ""
+                          rol:
+                            type: "string"
+                            description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                            enum:
+                            - "Tutor"
+                            - "Tutorado"
+                            - "Administrador"
+                          activeTutoringLimit:
+                            type: "integer"
+                            description: ""
+                        description: ""
+                      skills:
+                        type: "array"
+                        description: ""
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                              description: ""
+                            name:
+                              type: "string"
+                              description: ""
+                          description: "com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto"
+                      needsDescription:
+                        type: "string"
+                        description: ""
+                      requestStatus:
+                        type: "string"
+                        description: "{Enviada=Enviada, Aprobada=Aprobada, Asignada=Asignada,\
+                          \ Rechazada=Rechazada}"
+                        enum:
+                        - "Enviada"
+                        - "Aprobada"
+                        - "Asignada"
+                        - "Rechazada"
+                    description: ""
+                  timestamp:
+                    type: "string"
+                    description: ""
+  /api/v1/tutorings:
+    post:
+      summary: "createTutoring"
+      description: "createTutoring"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "objectives"
+              - "tutorId"
+              - "tutoringRequestId"
+              type: "object"
+              properties:
+                tutoringRequestId:
+                  type: "string"
+                  description: ""
+                tutorId:
+                  type: "string"
+                  description: ""
+                objectives:
+                  type: "string"
+                  description: ""
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    description: ""
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      tutor:
+                        type: "object"
+                        properties:
+                          id:
+                            type: "string"
+                            description: ""
+                          firstName:
+                            type: "string"
+                            description: ""
+                          lastName:
+                            type: "string"
+                            description: ""
+                          email:
+                            type: "string"
+                            description: ""
+                          chapter:
+                            type: "object"
+                            properties:
+                              id:
+                                type: "string"
+                                description: ""
+                              name:
+                                type: "string"
+                                description: ""
+                            description: ""
+                          rol:
+                            type: "string"
+                            description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                            enum:
+                            - "Tutor"
+                            - "Tutorado"
+                            - "Administrador"
+                          activeTutoringLimit:
+                            type: "integer"
+                            description: ""
+                        description: ""
+                      tutee:
+                        type: "object"
+                        properties:
+                          id:
+                            type: "string"
+                            description: ""
+                          firstName:
+                            type: "string"
+                            description: ""
+                          lastName:
+                            type: "string"
+                            description: ""
+                          email:
+                            type: "string"
+                            description: ""
+                          chapter:
+                            type: "object"
+                            properties:
+                              id:
+                                type: "string"
+                                description: ""
+                              name:
+                                type: "string"
+                                description: ""
+                            description: ""
+                          rol:
+                            type: "string"
+                            description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                            enum:
+                            - "Tutor"
+                            - "Tutorado"
+                            - "Administrador"
+                          activeTutoringLimit:
+                            type: "integer"
+                            description: ""
+                        description: ""
+                      skills:
+                        type: "array"
+                        description: ""
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                              description: ""
+                            name:
+                              type: "string"
+                              description: ""
+                          description: "com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto"
+                      startDate:
+                        type: "string"
+                        description: ""
+                      expectedEndDate:
+                        type: "string"
+                        description: ""
+                      status:
+                        type: "string"
+                        description: "{Activa=Activa, Completada=Completada, Cancelada=Cancelada}"
+                        enum:
+                        - "Activa"
+                        - "Completada"
+                        - "Cancelada"
+                      objectives:
+                        type: "string"
+                        description: ""
+                    description: ""
+                  timestamp:
+                    type: "string"
+                    description: ""
+  /api/v1/users:
+    put:
+      summary: "updateUser"
+      description: "updateUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "id"
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                firstName:
+                  type: "string"
+                  description: ""
+                lastName:
+                  type: "string"
+                  description: ""
+                chapterId:
+                  type: "string"
+                  description: ""
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    description: ""
+                  firstName:
+                    type: "string"
+                    description: ""
+                  lastName:
+                    type: "string"
+                    description: ""
+                  email:
+                    type: "string"
+                    description: ""
+                  chapter:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      name:
+                        type: "string"
+                        description: ""
+                    description: ""
+                  rol:
+                    type: "string"
+                    description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                    enum:
+                    - "Tutor"
+                    - "Tutorado"
+                    - "Administrador"
+                  activeTutoringLimit:
+                    type: "integer"
+                    description: ""
+  /api/v1/users/{id}:
+    get:
+      summary: "getUserById"
+      description: "getUserById"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: ""
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    description: ""
+                  firstName:
+                    type: "string"
+                    description: ""
+                  lastName:
+                    type: "string"
+                    description: ""
+                  email:
+                    type: "string"
+                    description: ""
+                  chapter:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      name:
+                        type: "string"
+                        description: ""
+                    description: ""
+                  rol:
+                    type: "string"
+                    description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                    enum:
+                    - "Tutor"
+                    - "Tutorado"
+                    - "Administrador"
+                  activeTutoringLimit:
+                    type: "integer"
+                    description: ""
+  /api/v1/users/role:
+    patch:
+      summary: "updateUserRole"
+      description: "updateUserRole"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "id"
+              - "role"
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                role:
+                  type: "string"
+                  description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                  enum:
+                  - "Tutor"
+                  - "Tutorado"
+                  - "Administrador"
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    description: ""
+                  firstName:
+                    type: "string"
+                    description: ""
+                  lastName:
+                    type: "string"
+                    description: ""
+                  email:
+                    type: "string"
+                    description: ""
+                  chapter:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      name:
+                        type: "string"
+                        description: ""
+                    description: ""
+                  rol:
+                    type: "string"
+                    description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                    enum:
+                    - "Tutor"
+                    - "Tutorado"
+                    - "Administrador"
+                  activeTutoringLimit:
+                    type: "integer"
+                    description: ""
+  /api/v1/users/tutoring-limit:
+    patch:
+      summary: "updateTutoringLimit"
+      description: "updateTutoringLimit"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "activeTutoringLimit"
+              - "id"
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                activeTutoringLimit:
+                  minimum: 0
+                  type: "integer"
+                  description: ""
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    description: ""
+                  firstName:
+                    type: "string"
+                    description: ""
+                  lastName:
+                    type: "string"
+                    description: ""
+                  email:
+                    type: "string"
+                    description: ""
+                  chapter:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      name:
+                        type: "string"
+                        description: ""
+                    description: ""
+                  rol:
+                    type: "string"
+                    description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                    enum:
+                    - "Tutor"
+                    - "Tutorado"
+                    - "Administrador"
+                  activeTutoringLimit:
+                    type: "integer"
+                    description: ""
+  /api/chapter/:
+    post:
+      summary: "postCreate"
+      description: "postCreate"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "name"
+              type: "object"
+              properties:
+                name:
+                  maxLength: 50
+                  minLength: 3
+                  type: "string"
+                  description: ""
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    description: ""
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      name:
+                        type: "string"
+                        description: ""
+                    description: ""
+                  timestamp:
+                    type: "string"
+                    description: ""
+  /api/chapter/{id}:
+    get:
+      summary: "getFindChapter"
+      description: "getFindChapter"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: ""
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    description: ""
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      name:
+                        type: "string"
+                        description: ""
+                    description: ""
+                  timestamp:
+                    type: "string"
+                    description: ""
+  /api/v1/skills:
+    put:
+      summary: "updateSkill"
+      description: "updateSkill"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "id"
+              - "name"
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                name:
+                  type: "string"
+                  description: ""
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    description: ""
+                  name:
+                    type: "string"
+                    description: ""
+  /api/v1/skills/{id}:
+    delete:
+      summary: "deleteSkill"
+      description: "deleteSkill"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: ""
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "No Content"
+components:
+  schemas:
+    com.pragma.chapter.infrastructure.adapter.input.rest.dto.ChapterDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: ""
+        name:
+          type: "string"
+          description: ""
+      description: ""
+    com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: ""
+        firstName:
+          type: "string"
+          description: ""
+        lastName:
+          type: "string"
+          description: ""
+        email:
+          type: "string"
+          description: ""
+        chapter:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+              description: ""
+            name:
+              type: "string"
+              description: ""
+          description: ""
+        rol:
+          type: "string"
+          description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+          enum:
+          - "Tutor"
+          - "Tutorado"
+          - "Administrador"
+        activeTutoringLimit:
+          type: "integer"
+          description: ""
+      description: ""
+    com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: ""
+        name:
+          type: "string"
+          description: ""
+      description: "com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto"
+    com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.TutoringRequestDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: ""
+        tutee:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+              description: ""
+            firstName:
+              type: "string"
+              description: ""
+            lastName:
+              type: "string"
+              description: ""
+            email:
+              type: "string"
+              description: ""
+            chapter:
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                name:
+                  type: "string"
+                  description: ""
+              description: ""
+            rol:
+              type: "string"
+              description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+              enum:
+              - "Tutor"
+              - "Tutorado"
+              - "Administrador"
+            activeTutoringLimit:
+              type: "integer"
+              description: ""
+          description: ""
+        skills:
+          type: "array"
+          description: ""
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+                description: ""
+              name:
+                type: "string"
+                description: ""
+            description: "com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto"
+        needsDescription:
+          type: "string"
+          description: ""
+        requestStatus:
+          type: "string"
+          description: "{Enviada=Enviada, Aprobada=Aprobada, Asignada=Asignada, Rechazada=Rechazada}"
+          enum:
+          - "Enviada"
+          - "Aprobada"
+          - "Asignada"
+          - "Rechazada"
+      description: "com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.TutoringRequestDto"
+    com.pragma.tutorings.infrastructure.adapter.input.rest.dto.TutoringDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: ""
+        tutor:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+              description: ""
+            firstName:
+              type: "string"
+              description: ""
+            lastName:
+              type: "string"
+              description: ""
+            email:
+              type: "string"
+              description: ""
+            chapter:
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                name:
+                  type: "string"
+                  description: ""
+              description: ""
+            rol:
+              type: "string"
+              description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+              enum:
+              - "Tutor"
+              - "Tutorado"
+              - "Administrador"
+            activeTutoringLimit:
+              type: "integer"
+              description: ""
+          description: ""
+        tutee:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+              description: ""
+            firstName:
+              type: "string"
+              description: ""
+            lastName:
+              type: "string"
+              description: ""
+            email:
+              type: "string"
+              description: ""
+            chapter:
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                name:
+                  type: "string"
+                  description: ""
+              description: ""
+            rol:
+              type: "string"
+              description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+              enum:
+              - "Tutor"
+              - "Tutorado"
+              - "Administrador"
+            activeTutoringLimit:
+              type: "integer"
+              description: ""
+          description: ""
+        skills:
+          type: "array"
+          description: ""
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+                description: ""
+              name:
+                type: "string"
+                description: ""
+            description: "com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto"
+        startDate:
+          type: "string"
+          description: ""
+        expectedEndDate:
+          type: "string"
+          description: ""
+        status:
+          type: "string"
+          description: "{Activa=Activa, Completada=Completada, Cancelada=Cancelada}"
+          enum:
+          - "Activa"
+          - "Completada"
+          - "Cancelada"
+        objectives:
+          type: "string"
+          description: ""
+      description: ""

@@ -1,7 +1,7 @@
-package com.pragma.tutorings_requests.domain.model;
+package com.pragma.tutorings.domain.model;
 
 import com.pragma.skills.domain.model.Skill;
-import com.pragma.tutorings_requests.domain.model.enums.RequestStatus;
+import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
 import com.pragma.usuarios.domain.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,12 +13,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TutoringRequest {
+public class Tutoring {
     private String id;
+    private User tutor;
     private User tutee;
     private List<Skill> skills;
-    private String needsDescription;
-    private Date requestDate;
-    private RequestStatus requestStatus;
-    private String assignedTutoringId;
+    private Date startDate;
+    private Date expectedEndDate;
+    private TutoringStatus status;
+    private String objectives;
 }

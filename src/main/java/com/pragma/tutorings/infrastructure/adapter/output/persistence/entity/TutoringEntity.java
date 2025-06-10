@@ -1,4 +1,4 @@
-package com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.entity;
+package com.pragma.tutorings.infrastructure.adapter.output.persistence.entity;
 
 import com.pragma.skills.infrastructure.adapter.output.persistence.entity.SkillEntity;
 import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
@@ -23,10 +23,10 @@ public class TutoringEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(name = "tutor_id")
+    @ManyToOne(fetch = FetchType.EAGER)
     private UsersEntity tutorId; // "ID del usuario que actúa como tutor"
 
-    @Column(name = "tutee_id")
+    @ManyToOne(fetch = FetchType.EAGER)
     private UsersEntity tuteeId; // "ID del usuario que actúa como tutorado"
 
     @ManyToMany

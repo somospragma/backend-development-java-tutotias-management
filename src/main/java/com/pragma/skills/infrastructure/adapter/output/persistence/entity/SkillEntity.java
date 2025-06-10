@@ -1,13 +1,12 @@
 package com.pragma.skills.infrastructure.adapter.output.persistence.entity;
 
-import com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.entity.TutoringEntity;
+import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "skills")

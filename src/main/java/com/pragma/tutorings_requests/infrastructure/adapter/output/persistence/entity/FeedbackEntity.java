@@ -1,5 +1,6 @@
 package com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.entity;
 
+import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.entity.UsersEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

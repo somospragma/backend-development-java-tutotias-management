@@ -1,6 +1,7 @@
 package com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.entity;
 
 import com.pragma.skills.infrastructure.adapter.output.persistence.entity.SkillEntity;
+import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import com.pragma.tutorings_requests.domain.model.enums.RequestStatus;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.entity.UsersEntity;
 import jakarta.persistence.*;
@@ -9,10 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 
 @Entity

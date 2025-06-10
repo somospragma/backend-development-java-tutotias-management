@@ -1,5 +1,6 @@
 package com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.entity;
 
+import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import com.pragma.tutorings_requests.domain.model.enums.TutoringsSessionStatus;
 import com.pragma.usuarios.domain.model.enums.RolUsuario;
 import jakarta.persistence.*;
