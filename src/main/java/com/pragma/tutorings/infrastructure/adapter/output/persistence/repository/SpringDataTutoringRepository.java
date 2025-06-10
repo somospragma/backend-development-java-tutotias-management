@@ -1,7 +1,7 @@
 package com.pragma.tutorings.infrastructure.adapter.output.persistence.repository;
 
+import com.pragma.tutorings.domain.model.enums.TutoringStatus;
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
-import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.entity.UsersEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

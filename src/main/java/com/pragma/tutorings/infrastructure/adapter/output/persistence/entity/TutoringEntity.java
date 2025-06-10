@@ -1,7 +1,7 @@
 package com.pragma.tutorings.infrastructure.adapter.output.persistence.entity;
 
 import com.pragma.skills.infrastructure.adapter.output.persistence.entity.SkillEntity;
-import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
+import com.pragma.tutorings.domain.model.enums.TutoringStatus;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.entity.UsersEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
 package com.pragma.tutorings.domain.model;
 
 import com.pragma.skills.domain.model.Skill;
-import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
+import com.pragma.tutorings.domain.model.enums.TutoringStatus;
 import com.pragma.usuarios.domain.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;

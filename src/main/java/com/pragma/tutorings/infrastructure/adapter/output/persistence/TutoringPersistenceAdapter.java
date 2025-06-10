@@ -1,11 +1,11 @@
 package com.pragma.tutorings.infrastructure.adapter.output.persistence;
 
 import com.pragma.tutorings.domain.model.Tutoring;
+import com.pragma.tutorings.domain.model.enums.TutoringStatus;
 import com.pragma.tutorings.domain.port.output.TutoringRepository;
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.mapper.TutoringMapper;
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.repository.SpringDataTutoringRepository;
-import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.entity.UsersEntity;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.repository.SpringDataUserRepository;
 import lombok.RequiredArgsConstructor;

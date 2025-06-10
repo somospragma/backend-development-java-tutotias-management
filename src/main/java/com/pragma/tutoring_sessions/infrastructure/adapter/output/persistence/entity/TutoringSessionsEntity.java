@@ -1,4 +1,4 @@
-package com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.entity;
+package com.pragma.tutoring_sessions.infrastructure.adapter.output.persistence.entity;
 
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import com.pragma.tutorings_requests.domain.model.enums.TutoringsSessionStatus;

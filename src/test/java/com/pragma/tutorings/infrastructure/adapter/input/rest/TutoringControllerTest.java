@@ -1,13 +1,12 @@
 package com.pragma.tutorings.infrastructure.adapter.input.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pragma.shared.dto.OkResponseDto;
 import com.pragma.tutorings.domain.model.Tutoring;
+import com.pragma.tutorings.domain.model.enums.TutoringStatus;
 import com.pragma.tutorings.domain.port.input.CreateTutoringUseCase;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CreateTutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.TutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.mapper.TutoringDtoMapper;
-import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

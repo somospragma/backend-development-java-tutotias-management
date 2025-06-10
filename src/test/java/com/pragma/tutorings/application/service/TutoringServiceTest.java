@@ -2,10 +2,10 @@ package com.pragma.tutorings.application.service;
 
 import com.pragma.skills.domain.model.Skill;
 import com.pragma.tutorings.domain.model.Tutoring;
+import com.pragma.tutorings.domain.model.enums.TutoringStatus;
 import com.pragma.tutorings.domain.port.output.TutoringRepository;
 import com.pragma.tutorings_requests.domain.model.TutoringRequest;
 import com.pragma.tutorings_requests.domain.model.enums.RequestStatus;
-import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
 import com.pragma.tutorings_requests.domain.port.output.TutoringRequestRepository;
 import com.pragma.usuarios.domain.model.User;
 import com.pragma.usuarios.domain.model.enums.RolUsuario;
@@ -93,7 +93,7 @@ class TutoringServiceTest {
         // Arrange
         when(findUserByIdUseCase.findUserById("tutor-id")).thenReturn(Optional.of(tutor));
         when(tutoringRequestRepository.findById("request-id")).thenReturn(Optional.of(tutoringRequest));
-        when(tutoringRepository.countActiveTutoringByTutorId("tutor-id")).thenReturn(2);
+        when(tutoringRepository.countActiveTutoringByTutorId("tutor-id")).thenReturn(2L);
         when(tutoringRepository.save(any(Tutoring.class))).thenReturn(tutoring);
         when(tutoringRequestRepository.save(any(TutoringRequest.class))).thenReturn(tutoringRequest);
 
@@ -180,7 +180,7 @@ class TutoringServiceTest {
         // Arrange
         when(findUserByIdUseCase.findUserById("tutor-id")).thenReturn(Optional.of(tutor));
         when(tutoringRequestRepository.findById("request-id")).thenReturn(Optional.of(tutoringRequest));
-        when(tutoringRepository.countActiveTutoringByTutorId("tutor-id")).thenReturn(5); // Igual al límite
+        when(tutoringRepository.countActiveTutoringByTutorId("tutor-id")).thenReturn(5L); // Igual al límite
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
@@ -197,7 +197,7 @@ class TutoringServiceTest {
         tutor.setRol(RolUsuario.Administrador);
         when(findUserByIdUseCase.findUserById("tutor-id")).thenReturn(Optional.of(tutor));
         when(tutoringRequestRepository.findById("request-id")).thenReturn(Optional.of(tutoringRequest));
-        when(tutoringRepository.countActiveTutoringByTutorId("tutor-id")).thenReturn(2);
+        when(tutoringRepository.countActiveTutoringByTutorId("tutor-id")).thenReturn(2L);
         when(tutoringRepository.save(any(Tutoring.class))).thenReturn(tutoring);
         when(tutoringRequestRepository.save(any(TutoringRequest.class))).thenReturn(tutoringRequest);
 

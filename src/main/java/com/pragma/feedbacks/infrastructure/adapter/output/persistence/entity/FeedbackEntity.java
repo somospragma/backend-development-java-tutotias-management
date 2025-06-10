@@ -1,4 +1,4 @@
-package com.pragma.tutorings_requests.infrastructure.adapter.output.persistence.entity;
+package com.pragma.feedbacks.infrastructure.adapter.output.persistence.entity;
 
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.entity.UsersEntity;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @Entity
-@Table(name = "feedback")
+@Table(name = "feedbacks")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,13 +19,13 @@ public class FeedbackEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(name = "evaluator_id")
+    @ManyToOne(fetch = FetchType.EAGER)
     private UsersEntity evaluatorId;
 
     @Column(name = "evaluation_date")
     private Date evaluationDate;
 
-    @Column(name = "tutoring_id")
+    @ManyToOne(fetch = FetchType.EAGER)
     private TutoringEntity tutoringId;
 
     @Column(name = "score")
@@ -33,7 +33,4 @@ public class FeedbackEntity {
 
     @Column(name = "comments", nullable = false)
     private String comments;
-
-
-
 }

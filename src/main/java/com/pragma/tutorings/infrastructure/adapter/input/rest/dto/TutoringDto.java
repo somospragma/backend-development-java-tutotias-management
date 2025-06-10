@@ -1,7 +1,7 @@
 package com.pragma.tutorings.infrastructure.adapter.input.rest.dto;
 
 import com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto;
-import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
+import com.pragma.tutorings.domain.model.enums.TutoringStatus;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;

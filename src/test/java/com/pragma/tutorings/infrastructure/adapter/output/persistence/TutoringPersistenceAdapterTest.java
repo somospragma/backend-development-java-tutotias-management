@@ -1,10 +1,10 @@
 package com.pragma.tutorings.infrastructure.adapter.output.persistence;
 
 import com.pragma.tutorings.domain.model.Tutoring;
+import com.pragma.tutorings.domain.model.enums.TutoringStatus;
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.mapper.TutoringMapper;
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.repository.SpringDataTutoringRepository;
-import com.pragma.tutorings_requests.domain.model.enums.TutoringStatus;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.entity.UsersEntity;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.repository.SpringDataUserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -136,7 +136,7 @@ class TutoringPersistenceAdapterTest {
     void countActiveTutoringsByTutorId_Success() {
         // Arrange
         when(userRepository.findById("tutor-id")).thenReturn(Optional.of(tutorEntity));
-        when(tutoringRepository.countByTutorIdAndStatus(tutorEntity.getId(), TutoringStatus.Activa)).thenReturn(3);
+        when(tutoringRepository.countByTutorIdAndStatus(tutorEntity.getId(), TutoringStatus.Activa)).thenReturn(3L);
 
         // Act
         Long result = tutoringPersistenceAdapter.countActiveTutoringByTutorId("tutor-id");
@@ -155,6 +155,6 @@ class TutoringPersistenceAdapterTest {
 
         // Assert
         assertEquals(0, result);
-        verify(tutoringRepository, never()).countByTutorIdAndStatus(any(UsersEntity.class), any(TutoringStatus.class));
+        verify(tutoringRepository, never()).countByTutorIdAndStatus(String.valueOf(any(UsersEntity.class)), any(TutoringStatus.class));
     }
 }
