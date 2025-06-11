@@ -2,12 +2,10 @@ package com.pragma.tutoring_sessions.infrastructure.adapter.output.persistence.e
 
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.entity.TutoringEntity;
 import com.pragma.tutorings_requests.domain.model.enums.TutoringsSessionStatus;
-import com.pragma.usuarios.domain.model.enums.RolUsuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Entity
 @Table(name = "tutoring_sessions")
@@ -19,11 +17,8 @@ public class TutoringSessionsEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(name = "tutoring_id")
+    @ManyToOne
     private TutoringEntity tutoringId; // "ID de la tutoría a la que pertenece esta sesión"
-
-    @Column(name = "last_name")
-    private String lastName;
 
     @Column(name = "datetime")
     private String datetime; // "Fecha y hora de la sesión"
@@ -32,7 +27,7 @@ public class TutoringSessionsEntity {
     private int durationMinutes; // "Duración de la sesión en minutos"
 
     @Column(name = "location_link")
-    private RolUsuario locationLink; // "Enlace grabación de reunión virtual"
+    private String locationLink; // "Enlace grabación de reunión virtual"
 
     @Column(name = "topics_covered")
     private String topicsCovered; // "Temas tratados durante la sesión"
