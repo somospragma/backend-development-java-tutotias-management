@@ -2,7 +2,6 @@ package com.pragma.tutoring_sessions.infrastructure.adapter.output.persistence.m
 
 import com.pragma.tutoring_sessions.domain.model.TutoringSession;
 import com.pragma.tutoring_sessions.infrastructure.adapter.output.persistence.entity.TutoringSessionsEntity;
-import com.pragma.tutorings.domain.model.Tutoring;
 import com.pragma.tutorings.infrastructure.adapter.output.persistence.mapper.TutoringMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

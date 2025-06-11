@@ -1,6 +1,5 @@
 package com.pragma.tutoring_sessions.infrastructure.adapter.input.rest.dto;
 
-import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.TutoringDto;
 import com.pragma.tutorings_requests.domain.model.enums.TutoringsSessionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;

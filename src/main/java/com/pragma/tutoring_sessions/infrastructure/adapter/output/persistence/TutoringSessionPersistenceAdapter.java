@@ -21,7 +21,6 @@ public class TutoringSessionPersistenceAdapter implements TutoringSessionReposit
 
     private final SpringDataTutoringSessionRepository repository;
     private final TutoringSessionMapper mapper;
-    private final TutoringMapper tutoringMapper;
 
     @Override
     public TutoringSession save(TutoringSession tutoringSession) {

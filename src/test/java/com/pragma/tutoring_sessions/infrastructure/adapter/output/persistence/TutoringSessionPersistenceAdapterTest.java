@@ -31,9 +31,6 @@ class TutoringSessionPersistenceAdapterTest {
     @Mock
     private TutoringSessionMapper mapper;
 
-    @Mock
-    private TutoringMapper tutoringMapper;
-
     @InjectMocks
     private TutoringSessionPersistenceAdapter adapter;
 
@@ -41,8 +38,6 @@ class TutoringSessionPersistenceAdapterTest {
     private String tutoringId;
     private TutoringSession tutoringSession;
     private TutoringSessionsEntity tutoringSessionsEntity;
-    private Tutoring tutoring;
-    private TutoringEntity tutoringEntity;
 
     @BeforeEach
     void setUp() {
@@ -50,11 +45,11 @@ class TutoringSessionPersistenceAdapterTest {
         
         sessionId = UUID.randomUUID().toString();
         tutoringId = UUID.randomUUID().toString();
-        
-        tutoring = new Tutoring();
+
+        Tutoring tutoring = new Tutoring();
         tutoring.setId(tutoringId);
-        
-        tutoringEntity = new TutoringEntity();
+
+        TutoringEntity tutoringEntity = new TutoringEntity();
         tutoringEntity.setId(tutoringId);
         
         tutoringSession = new TutoringSession();
