@@ -1,133 +1,354 @@
-# Sistema Tutorias: A Hexagonal Architecture-based Chapter Management System
+# Sistema de Tutorías
 
-Sistema Tutorias is a Spring Boot application that provides a robust REST API for managing educational chapters using hexagonal architecture (ports and adapters pattern). It offers a clean separation of concerns between business logic, persistence, and presentation layers while providing comprehensive chapter management capabilities with built-in validation and error handling.
+## Descripción General
 
-The system implements a domain-driven design approach with clear boundaries between the application core and external dependencies. It uses SQLite for data persistence, supports input validation, and provides internationalized error messages. The hexagonal architecture ensures that the business logic remains isolated from external concerns, making the system highly maintainable and testable.
+El Sistema de Tutorías es una aplicación desarrollada con Spring Boot que facilita la gestión de tutorías entre tutores y tutorados dentro de una organización. La plataforma permite solicitar tutorías sobre habilidades específicas, gestionar el ciclo de vida completo de las tutorías, programar sesiones, y proporcionar retroalimentación.
 
-## Repository Structure
+El sistema está diseñado siguiendo los principios de la Arquitectura Hexagonal (Ports and Adapters), lo que permite una clara separación de responsabilidades y facilita la mantenibilidad y escalabilidad del código.
+
+## Arquitectura del Sistema
+
+### Arquitectura Hexagonal
+
+El proyecto implementa la Arquitectura Hexagonal (también conocida como Ports and Adapters), que organiza el código en tres capas principales:
+
+1. **Dominio**: Contiene las entidades de negocio, reglas y lógica de dominio.
+2. **Aplicación**: Orquesta los casos de uso mediante servicios que coordinan las operaciones del dominio.
+3. **Infraestructura**: Implementa los adaptadores para interactuar con el mundo exterior (API REST, base de datos, etc.).
+
+### Estructura de Paquetes
+
+La estructura del proyecto sigue un enfoque modular por funcionalidad:
+
 ```
-.
-├── mvnw/mvnw.cmd              # Maven wrapper scripts for building without local Maven installation
-├── pom.xml                    # Maven project configuration and dependencies
-└── src
-    ├── main/java/com/pragma/sistematutorias
-    │   ├── chapter                           # Chapter domain module
-    │   │   ├── application                   # Application services and use cases
-    │   │   ├── domain                        # Core domain model and ports
-    │   │   └── infrastructure                # External adapters (REST, persistence)
-    │   ├── shared                           # Shared components across domains
-    │   │   ├── dto                          # Common DTOs for API responses
-    │   │   ├── exception                    # Global exception handling
-    │   │   └── service                      # Shared services (e.g., MessageService)
-    │   └── SistematutoriasApplication.java  # Application entry point
-    └── resources                            # Application properties and messages
+com.pragma
+├── chapter/                  # Módulo de capítulos/departamentos
+├── feedbacks/                # Módulo de retroalimentación
+├── shared/                   # Componentes compartidos
+├── skills/                   # Módulo de habilidades
+├── tutoring_sessions/        # Módulo de sesiones de tutoría
+├── tutorings/                # Módulo de tutorías
+├── tutorings_requests/       # Módulo de solicitudes de tutoría
+└── usuarios/                 # Módulo de usuarios
 ```
 
-## Usage Instructions
-### Prerequisites
-- Java 21 or higher
-- SQLite database
-- Maven 3.9.9 or higher (optional, wrapper included)
+Cada módulo sigue la estructura de la arquitectura hexagonal:
 
-### Installation
+```
+módulo/
+├── application/
+│   └── service/              # Servicios de aplicación
+├── domain/
+│   ├── model/                # Entidades de dominio
+│   └── port/
+│       ├── input/            # Puertos de entrada (casos de uso)
+│       └── output/           # Puertos de salida (repositorios)
+└── infrastructure/
+    └── adapter/
+        ├── input/
+        │   └── rest/         # Controladores REST
+        │       ├── dto/      # Objetos de transferencia de datos
+        │       └── mapper/   # Mapeadores DTO <-> Entidad
+        └── output/
+            └── persistence/  # Implementación de repositorios
+                ├── entity/   # Entidades JPA
+                ├── mapper/   # Mapeadores Entidad <-> Modelo
+                └── repository/ # Repositorios Spring Data
+```
 
-#### Using Maven Wrapper
+## Diagrama de Componentes
+
+```mermaid
+graph TD
+    subgraph "Capa de Presentación"
+        REST[API REST]
+    end
+    
+    subgraph "Capa de Aplicación"
+        US[Servicios de Aplicación]
+    end
+    
+    subgraph "Capa de Dominio"
+        UC[Casos de Uso]
+        DM[Modelos de Dominio]
+        RP[Puertos de Repositorio]
+    end
+    
+    subgraph "Capa de Infraestructura"
+        PA[Adaptadores de Persistencia]
+        DB[(Base de Datos SQLite)]
+    end
+    
+    REST --> US
+    US --> UC
+    UC --> DM
+    UC --> RP
+    RP --> PA
+    PA --> DB
+```
+
+## Diagrama de Flujo de Datos
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Controller as Controller
+    participant Service as Service
+    participant UseCase as UseCase
+    participant Repository as Repository
+    participant Database as Database
+    
+    Usuario->>Controller: Solicitud HTTP
+    Controller->>Service: Llamada al servicio
+    Service->>UseCase: Ejecuta caso de uso
+    UseCase->>Repository: Solicita datos
+    Repository->>Database: Consulta
+    Database-->>Repository: Resultado
+    Repository-->>UseCase: Datos
+    UseCase-->>Service: Resultado procesado
+    Service-->>Controller: Respuesta
+    Controller-->>Usuario: Respuesta HTTP
+```
+
+## Diagrama de Entidades
+
+```mermaid
+classDiagram
+    direction LR
+
+    class Chapter {
+        +String id
+        +String name
+    }
+    
+    class User {
+        +String id
+        +String firstName
+        +String lastName
+        +String email
+        +Chapter chapter
+        +RolUsuario rol
+        +int activeTutoringLimit
+    }
+
+    class Skill {
+        +String id
+        +String name
+    }
+
+    class Tutoring {
+        +String id
+        +User tutor
+        +User tutee
+        +List~Skill~ skills
+        +Date startDate
+        +Date expectedEndDate
+        +TutoringStatus status
+        +String objectives
+    }
+
+    class TutoringSession {
+        +String id
+        +Tutoring tutoring
+        +String datetime
+        +int durationMinutes
+        +String locationLink
+        +String topicsCovered
+        +String notes
+        +TutoringsSessionStatus sessionStatus
+    }
+
+    class TutoringRequest {
+        +String id
+        +User tutee
+        +List~Skill~ skills
+        +String needsDescription
+        +Date requestDate
+        +RequestStatus requestStatus
+        +String assignedTutoringId
+    }
+
+    class Feedback {
+        +String id
+        +User evaluator
+        +Date evaluationDate
+        +Tutoring tutoring
+        +String score
+        +String comments
+    }
+
+    User "1" -- "1" Chapter : pertenece a
+    User "1" -- "0..N" TutoringRequest : solicita
+    User "1" -- "0..N" Tutoring : es tutor en
+    User "1" -- "0..N" Tutoring : es tutorado en
+    User "1" -- "0..N" Feedback : proporciona
+    
+    Tutoring "1" -- "0..N" TutoringSession : tiene
+    Tutoring "1" -- "0..N" Feedback : recibe
+    Tutoring "1" -- "0..N" Skill : aborda
+    
+    TutoringRequest "0..1" -- "0..1" Tutoring : resulta en
+    TutoringRequest "1" -- "0..N" Skill : requiere
+```
+
+## Módulos Principales
+
+### 1. Usuarios (Users)
+
+Gestiona la información de los usuarios del sistema, que pueden tener diferentes roles:
+- **Tutor**: Puede impartir tutorías en sus áreas de experiencia.
+- **Tutorado**: Puede solicitar tutorías en habilidades que desea desarrollar.
+- **Administrador**: Gestiona el sistema.
+
+### 2. Habilidades (Skills)
+
+Representa las competencias o conocimientos que pueden ser objeto de tutoría.
+
+### 3. Capítulos (Chapters)
+
+Representa los departamentos o áreas de la organización a las que pertenecen los usuarios.
+
+### 4. Solicitudes de Tutoría (Tutoring Requests)
+
+Gestiona las peticiones de tutoría realizadas por los tutorados, con estados:
+- **Enviada**: Estado inicial de una solicitud.
+- **Aprobada**: La solicitud ha sido aprobada pero aún no asignada a un tutor.
+- **Asignada**: Se ha asignado un tutor y se ha creado una tutoría.
+- **Rechazada**: La solicitud ha sido rechazada.
+
+### 5. Tutorías (Tutorings)
+
+Representa las tutorías activas entre un tutor y un tutorado, con estados:
+- **Activa**: La tutoría está en curso.
+- **Completada**: La tutoría ha finalizado satisfactoriamente.
+- **Cancelada**: La tutoría ha sido cancelada.
+
+### 6. Sesiones de Tutoría (Tutoring Sessions)
+
+Gestiona las sesiones individuales dentro de una tutoría, con estados:
+- **Programada**: La sesión está planificada.
+- **Realizada**: La sesión se ha llevado a cabo.
+- **Cancelada**: La sesión ha sido cancelada.
+
+### 7. Retroalimentación (Feedbacks)
+
+Permite a los usuarios proporcionar evaluaciones y comentarios sobre las tutorías.
+
+## Flujos Principales
+
+### Flujo de Solicitud y Asignación de Tutoría
+
+1. Un tutorado crea una solicitud de tutoría especificando las habilidades requeridas.
+2. La solicitud se marca como "Enviada".
+3. Un administrador revisa la solicitud y la aprueba o rechaza.
+4. Si es aprobada, se asigna a un tutor disponible.
+5. Se crea una tutoría vinculada a la solicitud.
+6. La solicitud se marca como "Asignada".
+
+### Flujo de Gestión de Tutorías
+
+1. Una vez creada, la tutoría tiene estado "Activa".
+2. Se pueden programar múltiples sesiones de tutoría.
+3. Al finalizar, el tutor o tutorado puede marcar la tutoría como "Completada".
+4. En cualquier momento, la tutoría puede ser "Cancelada".
+5. Los usuarios pueden proporcionar retroalimentación sobre la tutoría.
+
+## Requisitos de Instalación
+
+### Prerrequisitos
+
+- Java 21
+- Maven 3.9+
+- SQLite (incluido como dependencia)
+
+### Configuración
+
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/tu-usuario/sistematutorias.git
+   cd sistematutorias
+   ```
+
+2. Compilar el proyecto:
+   ```bash
+   mvn clean install
+   ```
+
+3. Ejecutar la aplicación:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+### Configuración con Docker
+
+También puedes ejecutar la aplicación usando Docker:
+
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd sistematutorias
-
-# Build the project
-./mvnw clean install
-
-# Run the application
-./mvnw spring-boot:run
+# Construir la imagen
+docker build -t sistematutorias .
 ```
 
-#### Using Local Maven Installation
 ```bash
-# Build the project
-mvn clean install
-
-# Run the application
-mvn spring-boot:run
+# Ejecutar el contenedor
+docker run -p 8080:8080 -v sistematutorias-data:/data sistematutorias
 ```
 
-### Quick Start
-1. Start the application using one of the installation methods above
-2. The API will be available at `http://localhost:8080/api/chapter`
-
-Basic API Usage:
 ```bash
-# Get all chapters
-curl http://localhost:8080/api/chapter/
-
-# Create a new chapter
-curl -X POST http://localhost:8080/api/chapter/ \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Chapter 1","description":"Introduction"}'
-
-# Get a specific chapter
-curl http://localhost:8080/api/chapter/{id}
+# Usando docker-compose
+docker-compose up -d
 ```
 
-### More Detailed Examples
-```java
-// Creating a chapter with validation
-POST /api/chapter/
-{
-  "title": "Chapter 1",
-  "description": "Introduction to the course",
-  "order": 1
-}
+## API REST
 
-// Response
-{
-  "message": "Chapter created successfully",
-  "data": {
-    "id": "1234",
-    "title": "Chapter 1",
-    "description": "Introduction to the course",
-    "order": 1
-  }
-}
+La API REST está documentada con OpenAPI. Puedes acceder a la documentación en:
+```
+http://localhost:8080/swagger-ui.html
 ```
 
-### Troubleshooting
+### Endpoints Principales
 
-Common Issues:
-1. Database Connection Issues
-   - Error: "Cannot open database file"
-   - Solution: Ensure SQLite database file has proper permissions
-   - Check: `src/main/resources/application.properties` for database configuration
+- **Usuarios**: `/api/v1/users`
+- **Habilidades**: `/api/v1/skills`
+- **Capítulos**: `/api/chapter`
+- **Solicitudes de Tutoría**: `/api/v1/tutoring-requests`
+- **Tutorías**: `/api/v1/tutorings`
+- **Sesiones de Tutoría**: `/api/v1/tutoring-sessions`
+- **Retroalimentación**: `/api/v1/feedbacks`
 
-2. Validation Errors
-   - Error: 400 Bad Request with validation details
-   - Solution: Check request payload against API requirements
-   - Enable debug logging: Add `logging.level.com.pragma=DEBUG` to application.properties
+## Pruebas
 
-Debug Mode:
-```properties
-# Add to application.properties
-logging.level.com.pragma=DEBUG
-logging.level.org.springframework.web=DEBUG
+El proyecto incluye pruebas unitarias para cada componente. Para ejecutar las pruebas:
+
+```bash
+mvn test
 ```
 
-## Data Flow
-The system follows a clean hexagonal architecture pattern where requests flow through well-defined boundaries from the REST controller through the domain layer to the persistence layer.
+## Tecnologías Utilizadas
 
-```ascii
-[Client] → [REST Controller] → [Use Cases] → [Domain Model] → [Repository]
-    ↑                                                              ↓
-    └──────────────────── [Database Adapter] ←────────────────────┘
-```
+- **Spring Boot**: Framework principal
+- **Spring Data JPA**: Persistencia de datos
+- **SQLite**: Base de datos
+- **Lombok**: Reducción de código boilerplate
+- **MapStruct**: Mapeo entre objetos
+- **JUnit 5**: Pruebas unitarias
+- **Docker**: Contenerización
 
-Component Interactions:
-1. REST Controller receives HTTP requests and converts them to DTOs
-2. DTOs are mapped to domain objects using MapStruct
-3. Use cases implement business logic and validation
-4. Domain model maintains business rules and invariants
-5. Repository interface defines persistence operations
-6. Database adapter implements persistence using Spring Data
-7. Global exception handler provides consistent error responses
-8. Message service handles internationalization of responses
+## Notas para Desarrolladores
+
+- El proyecto sigue los principios SOLID y Clean Architecture.
+- Se utiliza el patrón de diseño Repository para el acceso a datos.
+- Los DTOs (Data Transfer Objects) se utilizan para la comunicación entre capas.
+- Los mappers automatizan la conversión entre entidades de dominio y DTOs/entidades de persistencia.
+- La validación de datos se realiza tanto a nivel de API como de dominio.
+
+## Contribución
+
+Para contribuir al proyecto:
+
+1. Crear una rama para tu funcionalidad: `git checkout -b feature/nueva-funcionalidad`
+2. Realizar cambios y pruebas
+3. Enviar un Pull Request
+
+## Licencia
+
+Este proyecto está licenciado bajo [Licencia Propietaria].
