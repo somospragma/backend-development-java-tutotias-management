@@ -11,7 +11,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {TutoringDtoMapper.class})
 public interface TutoringSessionDtoMapper {
 
-    @Mapping(target = "tutoring", ignore = true)
+//    @Mapping(target = "tutoring", ignore = true)
     TutoringSessionDto toDto(TutoringSession model);
     
     @Mapping(target = "id", ignore = true)
