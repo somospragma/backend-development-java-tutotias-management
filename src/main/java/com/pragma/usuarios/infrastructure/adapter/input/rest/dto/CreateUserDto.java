@@ -20,6 +20,9 @@ public class CreateUserDto {
     @Email(message = "Email should be valid")
     private String email;
     
+    @NotBlank(message = "Google User ID is required")
+    private String googleUserId;
+    
     @NotBlank(message = "Chapter ID is required")
     private String chapterId;
 }

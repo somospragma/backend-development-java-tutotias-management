@@ -4,12 +4,12 @@ INSERT INTO chapter (id, name) VALUES ('qa','QA');
 INSERT INTO chapter (id, name) VALUES ('devops', 'DevOps');
 
 
-INSERT INTO users (id, first_name, last_name,correo, chapter_id, rol, active_tutoring_limit) VALUES ('tutee-1', 'Jamer', 'Tutee', 'tutee-1@pragma.com', 'backend', 'Tutorado', 0 );
-INSERT INTO users (id, first_name, last_name,correo, chapter_id, rol, active_tutoring_limit) VALUES ('tutee-2', 'Carlos', 'Tutee', 'tutee-2@pragma.com', 'backend', 'Tutorado', 0 );
-INSERT INTO users (id, first_name, last_name,correo, chapter_id, rol, active_tutoring_limit) VALUES ('tutee-3', 'David', 'Tutee', 'tutee-3@pragma.com', 'backend', 'Tutorado', 0 );
-INSERT INTO users (id, first_name, last_name,correo, chapter_id, rol, active_tutoring_limit) VALUES ('tutor-1', 'Juan', 'Tutor', 'tutor-1@pragma.com', 'backend', 'Tutor', 1 );
-INSERT INTO users (id, first_name, last_name,correo, chapter_id, rol, active_tutoring_limit) VALUES ('tutor-2', 'Marcos', 'Tutor', 'tutor-2@pragma.com', 'backend', 'Tutor', 2 );
-INSERT INTO users (id, first_name, last_name,correo, chapter_id, rol, active_tutoring_limit) VALUES ('tutor-3', 'Maria', 'Tutor', 'tutor-3@pragma.com', 'backend', 'Tutor', 3 );
+INSERT INTO users (id, first_name, last_name,correo, google_user_id, chapter_id, rol, active_tutoring_limit) VALUES ('tutee-1', 'Jamer', 'Tutee', 'tutee-1@pragma.com', 'google-tutee-1', 'backend', 'Tutorado', 0 );
+INSERT INTO users (id, first_name, last_name,correo, google_user_id, chapter_id, rol, active_tutoring_limit) VALUES ('tutee-2', 'Carlos', 'Tutee', 'tutee-2@pragma.com', 'google-tutee-2', 'backend', 'Tutorado', 0 );
+INSERT INTO users (id, first_name, last_name,correo, google_user_id, chapter_id, rol, active_tutoring_limit) VALUES ('tutee-3', 'David', 'Tutee', 'tutee-3@pragma.com', 'google-tutee-3', 'backend', 'Tutorado', 0 );
+INSERT INTO users (id, first_name, last_name,correo, google_user_id, chapter_id, rol, active_tutoring_limit) VALUES ('tutor-1', 'Juan', 'Tutor', 'tutor-1@pragma.com', 'google-tutor-1', 'backend', 'Tutor', 1 );
+INSERT INTO users (id, first_name, last_name,correo, google_user_id, chapter_id, rol, active_tutoring_limit) VALUES ('tutor-2', 'Marcos', 'Tutor', 'tutor-2@pragma.com', 'google-tutor-2', 'backend', 'Tutor', 2 );
+INSERT INTO users (id, first_name, last_name,correo, google_user_id, chapter_id, rol, active_tutoring_limit) VALUES ('tutor-3', 'Maria', 'Tutor', 'tutor-3@pragma.com', 'google-tutor-3', 'backend', 'Tutor', 3 );
 
 
 

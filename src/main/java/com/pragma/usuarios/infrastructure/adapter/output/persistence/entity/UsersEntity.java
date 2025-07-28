@@ -29,6 +29,9 @@ public class UsersEntity implements Serializable {
     @Column(name = "correo", unique = true, nullable = false)
     private String email; //"Correo electrónico único del usuario pragma"
 
+    @Column(name = "google_user_id", unique = true, nullable = false)
+    private String googleUserId; // "ID de usuario de Google para control de sesiones"
+
     @ManyToOne
     private ChapterEntity chapter; // "chapter principal"
 
