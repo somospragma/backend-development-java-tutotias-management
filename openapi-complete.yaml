@@ -1,0 +1,1113 @@
+openapi: 3.0.3
+info:
+  title: Sistema de Tutorías API
+  description: |
+    API REST para el Sistema de Tutorías que facilita la gestión de tutorías entre tutores y tutorados.
+    
+    El sistema está desarrollado con Spring Boot siguiendo la Arquitectura Hexagonal y permite:
+    - Gestión de usuarios (tutores, tutorados, administradores)
+    - Solicitudes de tutoría
+    - Asignación y gestión de tutorías
+    - Programación de sesiones de tutoría
+    - Sistema de retroalimentación
+    - Gestión de habilidades y capítulos
+  version: 1.0.0
+  contact:
+    name: Sistema de Tutorías
+    email: support@sistematutorias.com
+  license:
+    name: Propietaria
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+tags:
+  - name: Users
+    description: Gestión de usuarios del sistema
+  - name: Chapters
+    description: Gestión de capítulos/departamentos
+  - name: Skills
+    description: Gestión de habilidades
+  - name: Tutoring Requests
+    description: Gestión de solicitudes de tutoría
+  - name: Tutorings
+    description: Gestión de tutorías
+  - name: Tutoring Sessions
+    description: Gestión de sesiones de tutoría
+  - name: Feedbacks
+    description: Gestión de retroalimentación
+
+paths:
+  # Users endpoints
+  /api/v1/users:
+    post:
+      tags:
+        - Users
+      summary: Crear un nuevo usuario
+      description: Crea un nuevo usuario en el sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+      responses:
+        '201':
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+    put:
+      tags:
+        - Users
+      summary: Actualizar un usuario
+      description: Actualiza la información de un usuario existente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequestDto'
+      responses:
+        '200':
+          description: Usuario actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '404':
+          description: Usuario no encontrado
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+
+  /api/v1/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Obtener usuario por ID
+      description: Obtiene la información de un usuario específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del usuario
+      responses:
+        '200':
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '404':
+          description: Usuario no encontrado
+
+  /api/v1/users/role:
+    patch:
+      tags:
+        - Users
+      summary: Actualizar rol de usuario
+      description: Actualiza el rol de un usuario específico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRoleDto'
+      responses:
+        '200':
+          description: Rol actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '404':
+          description: Usuario no encontrado
+
+  /api/v1/users/tutoring-limit:
+    patch:
+      tags:
+        - Users
+      summary: Actualizar límite de tutorías
+      description: Actualiza el límite de tutorías activas de un usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTutoringLimitDto'
+      responses:
+        '200':
+          description: Límite actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '403':
+          description: Operación no permitida
+        '404':
+          description: Usuario no encontrado
+
+  # Chapters endpoints
+  /api/chapter/:
+    get:
+      tags:
+        - Chapters
+      summary: Obtener todos los capítulos
+      description: Obtiene la lista de todos los capítulos disponibles
+      responses:
+        '200':
+          description: Lista de capítulos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseChapterList'
+    post:
+      tags:
+        - Chapters
+      summary: Crear un nuevo capítulo
+      description: Crea un nuevo capítulo en el sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChapterDto'
+      responses:
+        '201':
+          description: Capítulo creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseChapter'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+
+  /api/chapter/{id}:
+    get:
+      tags:
+        - Chapters
+      summary: Obtener capítulo por ID
+      description: Obtiene la información de un capítulo específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del capítulo
+      responses:
+        '200':
+          description: Capítulo encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseChapter'
+        '404':
+          description: Capítulo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseChapter'
+
+  # Skills endpoints
+  /api/v1/skills:
+    post:
+      tags:
+        - Skills
+      summary: Crear una nueva habilidad
+      description: Crea una nueva habilidad en el sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSkillDto'
+      responses:
+        '201':
+          description: Habilidad creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillDto'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+    get:
+      tags:
+        - Skills
+      summary: Obtener todas las habilidades
+      description: Obtiene la lista de todas las habilidades disponibles
+      responses:
+        '200':
+          description: Lista de habilidades obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SkillDto'
+    put:
+      tags:
+        - Skills
+      summary: Actualizar una habilidad
+      description: Actualiza la información de una habilidad existente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSkillDto'
+      responses:
+        '200':
+          description: Habilidad actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillDto'
+        '404':
+          description: Habilidad no encontrada
+
+  /api/v1/skills/{id}:
+    get:
+      tags:
+        - Skills
+      summary: Obtener habilidad por ID
+      description: Obtiene la información de una habilidad específica
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la habilidad
+      responses:
+        '200':
+          description: Habilidad encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillDto'
+        '404':
+          description: Habilidad no encontrada
+    delete:
+      tags:
+        - Skills
+      summary: Eliminar una habilidad
+      description: Elimina una habilidad del sistema
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la habilidad
+      responses:
+        '204':
+          description: Habilidad eliminada exitosamente
+        '404':
+          description: Habilidad no encontrada
+
+  # Tutoring Requests endpoints
+  /api/v1/tutoring-requests:
+    post:
+      tags:
+        - Tutoring Requests
+      summary: Crear una solicitud de tutoría
+      description: Crea una nueva solicitud de tutoría
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTutoringRequestDto'
+      responses:
+        '201':
+          description: Solicitud de tutoría creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoringRequest'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+    get:
+      tags:
+        - Tutoring Requests
+      summary: Obtener solicitudes de tutoría
+      description: Obtiene las solicitudes de tutoría con filtros opcionales
+      parameters:
+        - name: tuteeId
+          in: query
+          schema:
+            type: string
+          description: ID del tutorado para filtrar
+        - name: skillId
+          in: query
+          schema:
+            type: string
+          description: ID de la habilidad para filtrar
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/RequestStatus'
+          description: Estado de la solicitud para filtrar
+      responses:
+        '200':
+          description: Lista de solicitudes obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoringRequestList'
+
+  /api/v1/tutoring-requests/{requestId}/status:
+    patch:
+      tags:
+        - Tutoring Requests
+      summary: Actualizar estado de solicitud
+      description: Actualiza el estado de una solicitud de tutoría
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la solicitud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTutoringRequestStatusDto'
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoringRequest'
+        '400':
+          description: Estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '404':
+          description: Solicitud no encontrada
+
+  # Tutorings endpoints
+  /api/v1/tutorings:
+    post:
+      tags:
+        - Tutorings
+      summary: Crear una tutoría
+      description: Crea una nueva tutoría asignando un tutor a una solicitud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTutoringDto'
+      responses:
+        '201':
+          description: Tutoría creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoring'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+
+  /api/v1/tutorings/{tutoringId}/complete:
+    patch:
+      tags:
+        - Tutorings
+      summary: Completar una tutoría
+      description: Marca una tutoría como completada
+      parameters:
+        - name: tutoringId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la tutoría
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTutoringStatusDto'
+      responses:
+        '200':
+          description: Tutoría completada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoring'
+        '400':
+          description: Operación no válida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '404':
+          description: Tutoría no encontrada
+
+  /api/v1/tutorings/{tutoringId}/cancel:
+    patch:
+      tags:
+        - Tutorings
+      summary: Cancelar una tutoría
+      description: Cancela una tutoría activa
+      parameters:
+        - name: tutoringId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la tutoría
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTutoringStatusDto'
+      responses:
+        '200':
+          description: Tutoría cancelada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoring'
+        '400':
+          description: Operación no válida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '404':
+          description: Tutoría no encontrada
+
+  # Tutoring Sessions endpoints
+  /api/v1/tutoring-sessions:
+    post:
+      tags:
+        - Tutoring Sessions
+      summary: Crear una sesión de tutoría
+      description: Programa una nueva sesión de tutoría
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTutoringSessionDto'
+      responses:
+        '201':
+          description: Sesión creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoringSession'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+
+  /api/v1/tutoring-sessions/{id}/status:
+    patch:
+      tags:
+        - Tutoring Sessions
+      summary: Actualizar estado de sesión
+      description: Actualiza el estado de una sesión de tutoría
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTutoringSessionStatusDto'
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoringSession'
+        '400':
+          description: Estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '404':
+          description: Sesión no encontrada
+
+  # Feedbacks endpoints
+  /api/v1/feedbacks:
+    post:
+      tags:
+        - Feedbacks
+      summary: Crear retroalimentación
+      description: Crea una nueva retroalimentación para una tutoría
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeedbackDto'
+      responses:
+        '201':
+          description: Retroalimentación creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseFeedback'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+
+components:
+  schemas:
+    # User schemas
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del usuario
+        firstName:
+          type: string
+          description: Nombre del usuario
+        lastName:
+          type: string
+          description: Apellido del usuario
+        email:
+          type: string
+          format: email
+          description: Correo electrónico del usuario
+        googleUserId:
+          type: string
+          description: ID de Google del usuario
+        chapter:
+          $ref: '#/components/schemas/ChapterDto'
+        rol:
+          $ref: '#/components/schemas/RolUsuario'
+        activeTutoringLimit:
+          type: integer
+          description: Límite de tutorías activas
+
+    CreateUserDto:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - googleUserId
+        - chapterId
+      properties:
+        firstName:
+          type: string
+          description: Nombre del usuario
+        lastName:
+          type: string
+          description: Apellido del usuario
+        email:
+          type: string
+          format: email
+          description: Correo electrónico del usuario
+        googleUserId:
+          type: string
+          description: ID de Google del usuario
+        chapterId:
+          type: string
+          description: ID del capítulo al que pertenece
+
+    UpdateUserRequestDto:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: ID del usuario a actualizar
+        firstName:
+          type: string
+          description: Nombre del usuario
+        lastName:
+          type: string
+          description: Apellido del usuario
+        email:
+          type: string
+          format: email
+          description: Correo electrónico del usuario
+        chapterId:
+          type: string
+          description: ID del capítulo
+
+    UpdateUserRoleDto:
+      type: object
+      required:
+        - id
+        - role
+      properties:
+        id:
+          type: string
+          description: ID del usuario
+        role:
+          $ref: '#/components/schemas/RolUsuario'
+
+    UpdateTutoringLimitDto:
+      type: object
+      required:
+        - id
+        - activeTutoringLimit
+      properties:
+        id:
+          type: string
+          description: ID del usuario
+        activeTutoringLimit:
+          type: integer
+          minimum: 0
+          description: Nuevo límite de tutorías activas
+
+    # Chapter schemas
+    ChapterDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del capítulo
+        name:
+          type: string
+          description: Nombre del capítulo
+
+    CreateChapterDto:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Nombre del capítulo
+
+    # Skill schemas
+    SkillDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único de la habilidad
+        name:
+          type: string
+          description: Nombre de la habilidad
+
+    CreateSkillDto:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Nombre de la habilidad
+
+    UpdateSkillDto:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          description: ID de la habilidad
+        name:
+          type: string
+          description: Nombre de la habilidad
+
+    # Tutoring Request schemas
+    TutoringRequestDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único de la solicitud
+        tutee:
+          $ref: '#/components/schemas/UserDto'
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillDto'
+        needsDescription:
+          type: string
+          description: Descripción de las necesidades
+        requestStatus:
+          $ref: '#/components/schemas/RequestStatus'
+
+    CreateTutoringRequestDto:
+      type: object
+      required:
+        - tuteeId
+        - needsDescription
+      properties:
+        tuteeId:
+          type: string
+          description: ID del estudiante que solicita
+        skillIds:
+          type: array
+          items:
+            type: string
+          description: Lista de IDs de habilidades
+        needsDescription:
+          type: string
+          description: Descripción de las necesidades
+
+    UpdateTutoringRequestStatusDto:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+
+    # Tutoring schemas
+    TutoringDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único de la tutoría
+        tutor:
+          $ref: '#/components/schemas/UserDto'
+        tutee:
+          $ref: '#/components/schemas/UserDto'
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillDto'
+        startDate:
+          type: string
+          format: date-time
+          description: Fecha de inicio
+        expectedEndDate:
+          type: string
+          format: date-time
+          description: Fecha esperada de finalización
+        status:
+          $ref: '#/components/schemas/TutoringStatus'
+        objectives:
+          type: string
+          description: Objetivos de la tutoría
+
+    CreateTutoringDto:
+      type: object
+      required:
+        - tutoringRequestId
+        - tutorId
+        - objectives
+      properties:
+        tutoringRequestId:
+          type: string
+          description: ID de la solicitud de tutoría
+        tutorId:
+          type: string
+          description: ID del tutor asignado
+        objectives:
+          type: string
+          description: Objetivos de la tutoría
+
+    UpdateTutoringStatusDto:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          description: ID del usuario que realiza la acción
+        comments:
+          type: string
+          description: Comentarios adicionales
+
+    # Tutoring Session schemas
+    TutoringSessionDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único de la sesión
+        datetime:
+          type: string
+          description: Fecha y hora de la sesión
+        durationMinutes:
+          type: integer
+          description: Duración en minutos
+        locationLink:
+          type: string
+          description: Enlace de ubicación/reunión
+        topicsCovered:
+          type: string
+          description: Temas cubiertos
+        notes:
+          type: string
+          description: Notas de la sesión
+        sessionStatus:
+          $ref: '#/components/schemas/TutoringsSessionStatus'
+
+    CreateTutoringSessionDto:
+      type: object
+      required:
+        - tutoringId
+        - datetime
+        - durationMinutes
+      properties:
+        tutoringId:
+          type: string
+          description: ID de la tutoría
+        datetime:
+          type: string
+          description: Fecha y hora de la sesión
+        durationMinutes:
+          type: integer
+          minimum: 1
+          description: Duración en minutos
+        locationLink:
+          type: string
+          description: Enlace de ubicación/reunión
+        topicsCovered:
+          type: string
+          description: Temas a cubrir
+
+    UpdateTutoringSessionStatusDto:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/TutoringsSessionStatus'
+        notes:
+          type: string
+          description: Notas adicionales
+
+    # Feedback schemas
+    FeedbackDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del feedback
+        evaluator:
+          $ref: '#/components/schemas/UserDto'
+        evaluationDate:
+          type: string
+          format: date-time
+          description: Fecha de evaluación
+        tutoring:
+          $ref: '#/components/schemas/TutoringDto'
+        score:
+          type: string
+          description: Puntuación otorgada
+        comments:
+          type: string
+          description: Comentarios del evaluador
+
+    CreateFeedbackDto:
+      type: object
+      required:
+        - evaluatorId
+        - tutoringId
+        - score
+        - comments
+      properties:
+        evaluatorId:
+          type: string
+          description: ID del evaluador
+        tutoringId:
+          type: string
+          description: ID de la tutoría
+        score:
+          type: string
+          description: Puntuación
+        comments:
+          type: string
+          description: Comentarios
+
+    # Enums
+    RolUsuario:
+      type: string
+      enum:
+        - Tutor
+        - Tutorado
+        - Administrador
+      description: Rol del usuario en el sistema
+
+    RequestStatus:
+      type: string
+      enum:
+        - Enviada
+        - Aprobada
+        - Asignada
+        - Rechazada
+      description: Estado de la solicitud de tutoría
+
+    TutoringStatus:
+      type: string
+      enum:
+        - Activa
+        - Completada
+        - Cancelada
+      description: Estado de la tutoría
+
+    TutoringsSessionStatus:
+      type: string
+      enum:
+        - Programada
+        - Realizada
+        - Cancelada
+      description: Estado de la sesión de tutoría
+
+    # Response wrappers
+    OkResponseChapter:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          $ref: '#/components/schemas/ChapterDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseChapterList:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChapterDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseTutoringRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          $ref: '#/components/schemas/TutoringRequestDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseTutoringRequestList:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TutoringRequestDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseTutoring:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          $ref: '#/components/schemas/TutoringDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseTutoringSession:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          $ref: '#/components/schemas/TutoringSessionDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseFeedback:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          $ref: '#/components/schemas/FeedbackDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    ErrorResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de error
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+          description: Detalles específicos de errores de validación
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp del error
