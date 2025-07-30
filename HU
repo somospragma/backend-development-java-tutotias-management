@@ -1,0 +1,39 @@
+# Agregar el filtro de chapter para el listado de request de tutorias.
+Quien: Usuario tutor, tutee.
+Como: quiero agregar un filtro de chapter para el listado de solicitud de tutorias.
+Para: poder agregarlo a los filtros que ya existes.
+
+
+# Daschoboar de contador de request, y tutorías según estados. Cuantos mentores activos por chapter,
+Quien: Usuario admin.
+Como: quiero tener un dominio de estadisticas con una api.
+Para: poder contar lis request por estado, tutorias por estado y cuantos tutores estan activos.
+
+
+# Agregar camba de acta final al completar la tutoria. Como campo requerido.
+Quien: Usuario tutor.
+Como: gestor de lo estados de la tutoria.
+Para: agregar una url para guardar el acta de finalizacion de la tuturia al completar la misma.
+
+# Consultas de Id User por heder:Authorization con modlleware  de seguridad id_google
+Quien: system.
+Como: garantizar una autenticacion de quienes consultas las apis atraves de los header de la peticion.
+Para: en todos los controladores retornal un objeto de usuario que se me indique que usuario esta consultando la api.
+
+# Agregar estado para reunirse tutor y tutee
+Quien: tutoe.
+Como: encargado de cambiar estados en las solicitudes de tutorias quiero tener un estado anterior al asignar tutoria.
+Para: reunirme con el tutte y verificar los conocimiento si cumple se cambia el estado a asignas caso contrario puedo regresar al estado de aceptada.
+
+# Revisar que el request tutoring renga
+
+# Agregar filtro de chapter para todos los request por el IDUser
+Quien: tutte y tutor.
+Como: tengo diferentes consultas de datos filtro a mi chapter
+Para: evitar tener informacion que no corresponde al chapter que pertenece el usuario.
+
+
+# Get perfil con el id de google
+Quien: tutte, tutor y admin.
+Como: gestor de mis datos quiero consultar el detalle de mi perfil por la clave de heades
+Para: garantizar que todos mis datos son correctos.
