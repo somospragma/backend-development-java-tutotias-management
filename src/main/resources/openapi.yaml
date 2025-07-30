@@ -73,6 +73,9 @@ paths:
                             email:
                               type: "string"
                               description: ""
+                            googleUserId:
+                              type: "string"
+                              description: ""
                             chapter:
                               type: "object"
                               properties:
@@ -184,6 +187,9 @@ paths:
                           email:
                             type: "string"
                             description: ""
+                          googleUserId:
+                            type: "string"
+                            description: ""
                           chapter:
                             type: "object"
                             properties:
@@ -230,6 +236,155 @@ paths:
                         - "Aprobada"
                         - "Asignada"
                         - "Rechazada"
+                    description: ""
+                  timestamp:
+                    type: "string"
+                    description: ""
+  /api/v1/tutoring-sessions:
+    post:
+      summary: "createTutoringSession"
+      description: "createTutoringSession"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "datetime"
+              - "durationMinutes"
+              - "tutoringId"
+              type: "object"
+              properties:
+                tutoringId:
+                  type: "string"
+                  description: ""
+                datetime:
+                  type: "string"
+                  description: ""
+                durationMinutes:
+                  minimum: 1
+                  type: "integer"
+                  description: ""
+                locationLink:
+                  type: "string"
+                  description: ""
+                topicsCovered:
+                  type: "string"
+                  description: ""
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    description: ""
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      datetime:
+                        type: "string"
+                        description: ""
+                      durationMinutes:
+                        type: "integer"
+                        description: ""
+                      locationLink:
+                        type: "string"
+                        description: ""
+                      topicsCovered:
+                        type: "string"
+                        description: ""
+                      notes:
+                        type: "string"
+                        description: ""
+                      sessionStatus:
+                        type: "string"
+                        description: "{Programada=Programada, Realizada=Realizada,\
+                          \ Cancelada=Cancelada}"
+                        enum:
+                        - "Programada"
+                        - "Realizada"
+                        - "Cancelada"
+                    description: ""
+                  timestamp:
+                    type: "string"
+                    description: ""
+  /api/v1/tutoring-sessions/{id}/status:
+    patch:
+      summary: "updateTutoringSessionStatus"
+      description: "updateTutoringSessionStatus"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: ""
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "status"
+              type: "object"
+              properties:
+                status:
+                  type: "string"
+                  description: "{Programada=Programada, Realizada=Realizada, Cancelada=Cancelada}"
+                  enum:
+                  - "Programada"
+                  - "Realizada"
+                  - "Cancelada"
+                notes:
+                  type: "string"
+                  description: ""
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    description: ""
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      datetime:
+                        type: "string"
+                        description: ""
+                      durationMinutes:
+                        type: "integer"
+                        description: ""
+                      locationLink:
+                        type: "string"
+                        description: ""
+                      topicsCovered:
+                        type: "string"
+                        description: ""
+                      notes:
+                        type: "string"
+                        description: ""
+                      sessionStatus:
+                        type: "string"
+                        description: "{Programada=Programada, Realizada=Realizada,\
+                          \ Cancelada=Cancelada}"
+                        enum:
+                        - "Programada"
+                        - "Realizada"
+                        - "Cancelada"
                     description: ""
                   timestamp:
                     type: "string"
@@ -290,6 +445,9 @@ paths:
                           email:
                             type: "string"
                             description: ""
+                          googleUserId:
+                            type: "string"
+                            description: ""
                           chapter:
                             type: "object"
                             properties:
@@ -324,6 +482,9 @@ paths:
                             type: "string"
                             description: ""
                           email:
+                            type: "string"
+                            description: ""
+                          googleUserId:
                             type: "string"
                             description: ""
                           chapter:
@@ -438,6 +599,9 @@ paths:
                           email:
                             type: "string"
                             description: ""
+                          googleUserId:
+                            type: "string"
+                            description: ""
                           chapter:
                             type: "object"
                             properties:
@@ -472,6 +636,9 @@ paths:
                             type: "string"
                             description: ""
                           email:
+                            type: "string"
+                            description: ""
+                          googleUserId:
                             type: "string"
                             description: ""
                           chapter:
@@ -586,6 +753,9 @@ paths:
                           email:
                             type: "string"
                             description: ""
+                          googleUserId:
+                            type: "string"
+                            description: ""
                           chapter:
                             type: "object"
                             properties:
@@ -620,6 +790,9 @@ paths:
                             type: "string"
                             description: ""
                           email:
+                            type: "string"
+                            description: ""
+                          googleUserId:
                             type: "string"
                             description: ""
                           chapter:
@@ -676,6 +849,217 @@ paths:
                   timestamp:
                     type: "string"
                     description: ""
+  /api/v1/feedbacks:
+    post:
+      summary: "createFeedback"
+      description: "createFeedback"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - "comments"
+              - "evaluatorId"
+              - "score"
+              - "tutoringId"
+              type: "object"
+              properties:
+                evaluatorId:
+                  type: "string"
+                  description: ""
+                tutoringId:
+                  type: "string"
+                  description: ""
+                score:
+                  type: "string"
+                  description: ""
+                comments:
+                  type: "string"
+                  description: ""
+              description: ""
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    description: ""
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: ""
+                      evaluator:
+                        type: "object"
+                        properties:
+                          id:
+                            type: "string"
+                            description: ""
+                          firstName:
+                            type: "string"
+                            description: ""
+                          lastName:
+                            type: "string"
+                            description: ""
+                          email:
+                            type: "string"
+                            description: ""
+                          googleUserId:
+                            type: "string"
+                            description: ""
+                          chapter:
+                            type: "object"
+                            properties:
+                              id:
+                                type: "string"
+                                description: ""
+                              name:
+                                type: "string"
+                                description: ""
+                            description: ""
+                          rol:
+                            type: "string"
+                            description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                            enum:
+                            - "Tutor"
+                            - "Tutorado"
+                            - "Administrador"
+                          activeTutoringLimit:
+                            type: "integer"
+                            description: ""
+                        description: ""
+                      evaluationDate:
+                        type: "string"
+                        description: ""
+                      tutoring:
+                        type: "object"
+                        properties:
+                          id:
+                            type: "string"
+                            description: ""
+                          tutor:
+                            type: "object"
+                            properties:
+                              id:
+                                type: "string"
+                                description: ""
+                              firstName:
+                                type: "string"
+                                description: ""
+                              lastName:
+                                type: "string"
+                                description: ""
+                              email:
+                                type: "string"
+                                description: ""
+                              googleUserId:
+                                type: "string"
+                                description: ""
+                              chapter:
+                                type: "object"
+                                properties:
+                                  id:
+                                    type: "string"
+                                    description: ""
+                                  name:
+                                    type: "string"
+                                    description: ""
+                                description: ""
+                              rol:
+                                type: "string"
+                                description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                                enum:
+                                - "Tutor"
+                                - "Tutorado"
+                                - "Administrador"
+                              activeTutoringLimit:
+                                type: "integer"
+                                description: ""
+                            description: ""
+                          tutee:
+                            type: "object"
+                            properties:
+                              id:
+                                type: "string"
+                                description: ""
+                              firstName:
+                                type: "string"
+                                description: ""
+                              lastName:
+                                type: "string"
+                                description: ""
+                              email:
+                                type: "string"
+                                description: ""
+                              googleUserId:
+                                type: "string"
+                                description: ""
+                              chapter:
+                                type: "object"
+                                properties:
+                                  id:
+                                    type: "string"
+                                    description: ""
+                                  name:
+                                    type: "string"
+                                    description: ""
+                                description: ""
+                              rol:
+                                type: "string"
+                                description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                                enum:
+                                - "Tutor"
+                                - "Tutorado"
+                                - "Administrador"
+                              activeTutoringLimit:
+                                type: "integer"
+                                description: ""
+                            description: ""
+                          skills:
+                            type: "array"
+                            description: ""
+                            items:
+                              type: "object"
+                              properties:
+                                id:
+                                  type: "string"
+                                  description: ""
+                                name:
+                                  type: "string"
+                                  description: ""
+                              description: "com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto"
+                          startDate:
+                            type: "string"
+                            description: ""
+                          expectedEndDate:
+                            type: "string"
+                            description: ""
+                          status:
+                            type: "string"
+                            description: "{Activa=Activa, Completada=Completada, Cancelada=Cancelada}"
+                            enum:
+                            - "Activa"
+                            - "Completada"
+                            - "Cancelada"
+                          objectives:
+                            type: "string"
+                            description: ""
+                        description: ""
+                      score:
+                        type: "string"
+                        description: ""
+                      comments:
+                        type: "string"
+                        description: ""
+                    description: ""
+                  timestamp:
+                    type: "string"
+                    description: ""
   /api/v1/users:
     put:
       summary: "updateUser"
@@ -685,6 +1069,7 @@ paths:
           application/json:
             schema:
               required:
+              - "googleUserId"
               - "id"
               type: "object"
               properties:
@@ -695,6 +1080,9 @@ paths:
                   type: "string"
                   description: ""
                 lastName:
+                  type: "string"
+                  description: ""
+                googleUserId:
                   type: "string"
                   description: ""
                 chapterId:
@@ -719,6 +1107,9 @@ paths:
                     type: "string"
                     description: ""
                   email:
+                    type: "string"
+                    description: ""
+                  googleUserId:
                     type: "string"
                     description: ""
                   chapter:
@@ -770,6 +1161,9 @@ paths:
                     type: "string"
                     description: ""
                   email:
+                    type: "string"
+                    description: ""
+                  googleUserId:
                     type: "string"
                     description: ""
                   chapter:
@@ -836,6 +1230,9 @@ paths:
                   email:
                     type: "string"
                     description: ""
+                  googleUserId:
+                    type: "string"
+                    description: ""
                   chapter:
                     type: "object"
                     properties:
@@ -895,6 +1292,9 @@ paths:
                     type: "string"
                     description: ""
                   email:
+                    type: "string"
+                    description: ""
+                  googleUserId:
                     type: "string"
                     description: ""
                   chapter:
@@ -1069,6 +1469,9 @@ components:
         email:
           type: "string"
           description: ""
+        googleUserId:
+          type: "string"
+          description: ""
         chapter:
           type: "object"
           properties:
@@ -1121,6 +1524,9 @@ components:
             email:
               type: "string"
               description: ""
+            googleUserId:
+              type: "string"
+              description: ""
             chapter:
               type: "object"
               properties:
@@ -1167,6 +1573,35 @@ components:
           - "Asignada"
           - "Rechazada"
       description: "com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.TutoringRequestDto"
+    com.pragma.tutoring_sessions.infrastructure.adapter.input.rest.dto.TutoringSessionDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: ""
+        datetime:
+          type: "string"
+          description: ""
+        durationMinutes:
+          type: "integer"
+          description: ""
+        locationLink:
+          type: "string"
+          description: ""
+        topicsCovered:
+          type: "string"
+          description: ""
+        notes:
+          type: "string"
+          description: ""
+        sessionStatus:
+          type: "string"
+          description: "{Programada=Programada, Realizada=Realizada, Cancelada=Cancelada}"
+          enum:
+          - "Programada"
+          - "Realizada"
+          - "Cancelada"
+      description: ""
     com.pragma.tutorings.infrastructure.adapter.input.rest.dto.TutoringDto:
       type: "object"
       properties:
@@ -1186,6 +1621,9 @@ components:
               type: "string"
               description: ""
             email:
+              type: "string"
+              description: ""
+            googleUserId:
               type: "string"
               description: ""
             chapter:
@@ -1222,6 +1660,9 @@ components:
               type: "string"
               description: ""
             email:
+              type: "string"
+              description: ""
+            googleUserId:
               type: "string"
               description: ""
             chapter:
@@ -1272,6 +1713,175 @@ components:
           - "Completada"
           - "Cancelada"
         objectives:
+          type: "string"
+          description: ""
+      description: ""
+    com.pragma.feedbacks.infrastructure.adapter.input.rest.dto.FeedbackDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: ""
+        evaluator:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+              description: ""
+            firstName:
+              type: "string"
+              description: ""
+            lastName:
+              type: "string"
+              description: ""
+            email:
+              type: "string"
+              description: ""
+            googleUserId:
+              type: "string"
+              description: ""
+            chapter:
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                name:
+                  type: "string"
+                  description: ""
+              description: ""
+            rol:
+              type: "string"
+              description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+              enum:
+              - "Tutor"
+              - "Tutorado"
+              - "Administrador"
+            activeTutoringLimit:
+              type: "integer"
+              description: ""
+          description: ""
+        evaluationDate:
+          type: "string"
+          description: ""
+        tutoring:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+              description: ""
+            tutor:
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                firstName:
+                  type: "string"
+                  description: ""
+                lastName:
+                  type: "string"
+                  description: ""
+                email:
+                  type: "string"
+                  description: ""
+                googleUserId:
+                  type: "string"
+                  description: ""
+                chapter:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "string"
+                      description: ""
+                    name:
+                      type: "string"
+                      description: ""
+                  description: ""
+                rol:
+                  type: "string"
+                  description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                  enum:
+                  - "Tutor"
+                  - "Tutorado"
+                  - "Administrador"
+                activeTutoringLimit:
+                  type: "integer"
+                  description: ""
+              description: ""
+            tutee:
+              type: "object"
+              properties:
+                id:
+                  type: "string"
+                  description: ""
+                firstName:
+                  type: "string"
+                  description: ""
+                lastName:
+                  type: "string"
+                  description: ""
+                email:
+                  type: "string"
+                  description: ""
+                googleUserId:
+                  type: "string"
+                  description: ""
+                chapter:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "string"
+                      description: ""
+                    name:
+                      type: "string"
+                      description: ""
+                  description: ""
+                rol:
+                  type: "string"
+                  description: "{Tutor=Tutor, Tutorado=Tutorado, Administrador=Administrador}"
+                  enum:
+                  - "Tutor"
+                  - "Tutorado"
+                  - "Administrador"
+                activeTutoringLimit:
+                  type: "integer"
+                  description: ""
+              description: ""
+            skills:
+              type: "array"
+              description: ""
+              items:
+                type: "object"
+                properties:
+                  id:
+                    type: "string"
+                    description: ""
+                  name:
+                    type: "string"
+                    description: ""
+                description: "com.pragma.skills.infrastructure.adapter.input.rest.dto.SkillDto"
+            startDate:
+              type: "string"
+              description: ""
+            expectedEndDate:
+              type: "string"
+              description: ""
+            status:
+              type: "string"
+              description: "{Activa=Activa, Completada=Completada, Cancelada=Cancelada}"
+              enum:
+              - "Activa"
+              - "Completada"
+              - "Cancelada"
+            objectives:
+              type: "string"
+              description: ""
+          description: ""
+        score:
+          type: "string"
+          description: ""
+        comments:
           type: "string"
           description: ""
       description: ""
