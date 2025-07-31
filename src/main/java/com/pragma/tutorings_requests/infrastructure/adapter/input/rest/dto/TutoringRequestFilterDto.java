@@ -12,4 +12,5 @@ public class TutoringRequestFilterDto {
     private String tuteeId;
     private String skillId;
     private RequestStatus status;
+    private String chapterId;
 }

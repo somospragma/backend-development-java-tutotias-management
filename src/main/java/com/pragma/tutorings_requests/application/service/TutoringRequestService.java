@@ -89,11 +89,11 @@ public class TutoringRequestService implements
     }
 
     @Override
-    public List<TutoringRequest> getTutoringRequestsWithFilters(String tuteeId, String skillId, RequestStatus status) {
+    public List<TutoringRequest> getTutoringRequestsWithFilters(String tuteeId, String skillId, RequestStatus status, String chapterId) {
         try {
-            log.info("Obteniendo solicitudes de tutoría con filtros - tuteeId: {}, skillId: {}, status: {}", 
-                    tuteeId, skillId, status);
-            return tutoringRequestRepository.findWithFilters(tuteeId, skillId, status);
+            log.info("Obteniendo solicitudes de tutoría con filtros - tuteeId: {}, skillId: {}, status: {}, chapterId: {}", 
+                    tuteeId, skillId, status, chapterId);
+            return tutoringRequestRepository.findWithFilters(tuteeId, skillId, status, chapterId);
         } catch (Exception e) {
             log.error("Error al obtener solicitudes de tutoría con filtros: {}", e.getMessage(), e);
             throw new RuntimeException("Error al obtener solicitudes con filtros", e);

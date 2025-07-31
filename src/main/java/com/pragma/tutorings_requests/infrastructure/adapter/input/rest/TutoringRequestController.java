@@ -98,7 +98,8 @@ public class TutoringRequestController {
                 requests = getTutoringRequestsUseCase.getTutoringRequestsWithFilters(
                         filterDto.getTuteeId(), 
                         filterDto.getSkillId(), 
-                        filterDto.getStatus());
+                        filterDto.getStatus(),
+                        filterDto.getChapterId());
             }
             
             List<TutoringRequestDto> responseDtos = requests.stream()
