@@ -32,6 +32,39 @@ build/
 
 ### VS Code ###
 .vscode/
+*.tfvars
+# Archivos de estado
+*.tfstate
+*.tfstate.*
 
+# Archivos de respaldo
+*.backup
+*.bak
 
+# Archivos de variables locales
+*.tfvars
+*.tfvars.json
 
+# Archivos de bloqueo de provider
+.terraform.lock.hcl
+
+# Directorio de Terraform
+.terraform/
+
+# Archivos de crash logs
+crash.log
+crash.*.log
+
+# Archivos de override
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Archivos sensibles
+*.pem
+*.key
+*.crt
+
+# Archivos de salida o temporales
+.terraform.tfstate
