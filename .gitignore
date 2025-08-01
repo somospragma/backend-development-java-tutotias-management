@@ -43,6 +43,7 @@ build/
 
 # Archivos de variables locales
 *.tfvars
+!*.tfvars.example
 *.tfvars.json
 
 # Archivos de bloqueo de provider

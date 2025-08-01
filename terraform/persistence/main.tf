@@ -19,8 +19,8 @@ module "rds" {
     {
       create_global_cluster = false
       cluster_application   = "tutorias"
-      engine                = "aurora-postgresql"
-      engine_version        = "16.6"
+      engine                = "aurora-mysql"
+      engine_version        = "8.0.mysql_aurora.3.10.0"
       database_name         = "tutorias"
       deletion_protection   = false
       storage_encrypted     = true
@@ -39,13 +39,13 @@ module "rds" {
           preferred_backup_window         = "03:00-04:00"
           kms_key_id                      = data.aws_kms_alias.kms-database.target_key_arn
           performance_insights_kms_key_id = data.aws_kms_alias.kms-database.target_key_arn
-          port                            = "5432"
+          port                            = "3306"
           service                         = "tutorias"
-          enabled_cloudwatch_logs_exports = ["postgresql"]
+          enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
           copy_tags_to_snapshot           = true
           enable_http_endpoint            = true
           cluster_parameter = {
-            family      = "aurora-postgresql16"
+            family      = "aurora-mysql8.0"
             description = "Cluster parameter group for tutorias"
             parameters  = []
           }
@@ -55,7 +55,7 @@ module "rds" {
             seconds_until_auto_pause = "3600"
           }
           instance_parameter = {
-            family     = "aurora-postgresql17"
+            family     = "aurora-mysql8.0"
             parameters = []
           }
           cluster_instances = [

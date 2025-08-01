@@ -187,7 +187,7 @@ terraform apply -var-file="environments/dev/terraform.tfvars"
 - **Security Groups**:
   - **ALB Security Group**: Permite tráfico HTTP/HTTPS desde IPs específicas
   - **ECS Security Group**: Permite tráfico desde ALB en puerto 8080
-  - **RDS Security Group**: Permite tráfico MySQL/PostgreSQL desde ECS
+  - **RDS Security Group**: Permite tráfico MySQL desde ECS
 - **IAM Roles**:
   - **Task Role**: Para tareas ECS (acceso a CloudWatch Logs y Secrets Manager)
   - **Execution Role**: Para ejecución de contenedores (ECR, CloudWatch, Secrets Manager)
@@ -208,15 +208,15 @@ terraform apply -var-file="environments/dev/terraform.tfvars"
 **Propósito**: Proporciona la capa de persistencia de datos.
 
 **Recursos desplegados**:
-- **Aurora PostgreSQL Serverless**:
-  - Engine: `aurora-postgresql` versión 16.6
+- **Aurora MySQL Serverless**:
+  - Engine: `aurora-mysql` versión 8.0.mysql_aurora.3.02.0
   - Modo: Serverless v2 (escalado automático)
   - Capacidad: 0.5 - 2 ACUs
   - Auto-pause: 3600 segundos
   - Cifrado habilitado con KMS
   - Backups automáticos (7 días de retención)
   - Performance Insights habilitado
-  - Logs de PostgreSQL exportados a CloudWatch
+  - Logs de MySQL exportados a CloudWatch (error, general, slowquery)
 
 **Data Sources utilizados**:
 - `aws_vpc`: Referencia a la VPC
@@ -258,8 +258,8 @@ terraform apply -var-file="environments/dev/terraform.tfvars"
 - `aws_subnets`: Subnets públicas y de servicios
 - `aws_security_group`: Security Groups para ALB y ECS
 - `aws_iam_role`: Roles de ejecución y tarea
-- `aws_rds_cluster`: Endpoint de la base de datos (⚠️ Falta agregar)
-- `aws_secretsmanager_secret`: Secretos de base de datos (⚠️ Falta agregar)
+- `aws_rds_cluster`: Endpoint de la base de datos
+- `aws_secretsmanager_secret`: Secretos de base de datos
 
 **Configuración del contenedor**:
 - **Imagen**: Desde ECR
@@ -269,23 +269,6 @@ terraform apply -var-file="environments/dev/terraform.tfvars"
 - **Logs**: CloudWatch Logs con retención de 7 días
 
 ## ⚠️ Consideraciones Importantes
-
-### Data Sources Faltantes
-
-En el módulo `workload`, faltan los siguientes data sources en el archivo `data.tf`:
-
-```hcl
-# Agregar al archivo workload/data.tf
-data "aws_rds_cluster" "tutorias" {
-  provider           = aws.principal
-  cluster_identifier = "pragma-tutorias-dev-cluster-tutorias"
-}
-
-data "aws_secretsmanager_secret" "mi_secreto" {
-  provider = aws.principal
-  name     = "pragma-tutorias-dev-secret-tutorias"
-}
-```
 
 ### Dependencias entre Módulos
 
@@ -350,10 +333,7 @@ terraform init
 terraform plan -var-file="environments/dev/terraform.tfvars"
 terraform apply -var-file="environments/dev/terraform.tfvars"
 
-# 5. Agregar data sources faltantes en workload/data.tf
-# (Ver sección de consideraciones importantes)
-
-# 6. Desplegar Workload
+# 5. Desplegar Workload
 cd ../workload/
 terraform init
 terraform plan -var-file="environments/dev/terraform.tfvars"
@@ -385,9 +365,3 @@ aws rds describe-db-clusters --db-cluster-identifier pragma-tutorias-dev-cluster
 ### Variables Específicas por Módulo
 
 Consultar los archivos `variables.tf` en cada módulo para variables específicas.
-
-## 📞 CloudOps
-
-- **Owner**: jamer.pinto@pragma.com.co
-- **Área**: Infrastructure
-- **Proyecto**: Tutorías Management System

@@ -1,0 +1,90 @@
+##############################################################
+# Variables Globales
+##############################################################
+client      = "company"
+project     = "myproject"
+environment = "dev"
+region      = "us-east-1"
+profile     = "your_aws_profile"
+
+##############################################################
+# Variables de ECS
+##############################################################
+# Configuración del cluster ECS
+cluster_name = "myproject-cluster"
+
+# Configuración de servicios
+services = {
+  "api-gateway" = {
+    image_uri     = "123456789012.dkr.ecr.us-east-1.amazonaws.com/myproject/api-gateway:latest"
+    desired_count = 1
+    cpu           = 256
+    memory        = 512
+    port          = 8080
+    health_check_path = "/actuator/health"
+  }
+  "user-service" = {
+    image_uri     = "123456789012.dkr.ecr.us-east-1.amazonaws.com/myproject/user-service:latest"
+    desired_count = 1
+    cpu           = 256
+    memory        = 512
+    port          = 8080
+    health_check_path = "/actuator/health"
+  }
+  "course-service" = {
+    image_uri     = "123456789012.dkr.ecr.us-east-1.amazonaws.com/myproject/course-service:latest"
+    desired_count = 1
+    cpu           = 256
+    memory        = 512
+    port          = 8080
+    health_check_path = "/actuator/health"
+  }
+  "notification-service" = {
+    image_uri     = "123456789012.dkr.ecr.us-east-1.amazonaws.com/myproject/notification-service:latest"
+    desired_count = 1
+    cpu           = 256
+    memory        = 512
+    port          = 8080
+    health_check_path = "/actuator/health"
+  }
+}
+
+# Configuración del Application Load Balancer
+alb_config = {
+  name               = "myproject-alb"
+  internal           = false
+  load_balancer_type = "application"
+  
+  # Configuración de listeners
+  listeners = [
+    {
+      port     = 80
+      protocol = "HTTP"
+      default_action = {
+        type = "redirect"
+        redirect = {
+          port        = "443"
+          protocol    = "HTTPS"
+          status_code = "HTTP_301"
+        }
+      }
+    },
+    {
+      port     = 443
+      protocol = "HTTPS"
+      ssl_policy      = "ELBSecurityPolicy-TLS-1-2-2017-01"
+      certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/your-certificate-id"
+    }
+  ]
+}
+
+# Etiquetas comunes
+common_tags = {
+  client      = "company"
+  environment = "dev"
+  project     = "myproject"
+  owner       = "user@company.com"
+  area        = "infrastructure"
+  provisioned = "terraform"
+  application = "myapp"
+}

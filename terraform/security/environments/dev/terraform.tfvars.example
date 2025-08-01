@@ -1,0 +1,19 @@
+##############################################################
+# Variables Globales
+##############################################################
+client      = "company"
+project     = "myproject"
+environment = "dev"
+region      = "us-east-1"
+profile     = "your_aws_profile"
+
+# Etiquetas comunes
+common_tags = {
+  client      = "company"
+  environment = "dev"
+  project     = "myproject"
+  owner       = "user@company.com"
+  area        = "infrastructure"
+  provisioned = "terraform"
+  application = "myapp"
+}
