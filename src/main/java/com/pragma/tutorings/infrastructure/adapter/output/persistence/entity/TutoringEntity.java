@@ -44,4 +44,7 @@ public class TutoringEntity implements Serializable {
 
     @Column(name = "objectives")
     private String objectives; // "Objetivos detallados de la tutoría"
+    
+    @Column(name = "final_act_url")
+    private String finalActUrl; // "URL del acta final de la tutoría"
 }

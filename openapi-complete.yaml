@@ -374,6 +374,11 @@ paths:
           schema:
             $ref: '#/components/schemas/RequestStatus'
           description: Estado de la solicitud para filtrar
+        - name: chapterId
+          in: query
+          schema:
+            type: string
+          description: ID del capítulo para filtrar
       responses:
         '200':
           description: Lista de solicitudes obtenida exitosamente

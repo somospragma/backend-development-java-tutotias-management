@@ -16,11 +16,13 @@ public interface SpringDataTutoringRequestRepository extends JpaRepository<Tutor
            "LEFT JOIN tr.skills s " +
            "WHERE (:tuteeId IS NULL OR tr.tutee.id = :tuteeId) " +
            "AND (:skillId IS NULL OR s.id = :skillId) " +
-           "AND (:status IS NULL OR tr.requestStatus = :status)")
+           "AND (:status IS NULL OR tr.requestStatus = :status) " +
+           "AND (:chapterId IS NULL OR tr.tutee.chapter.id = :chapterId)")
     List<TutoringRequestsEntity> findWithFilters(
             @Param("tuteeId") String tuteeId,
             @Param("skillId") String skillId,
-            @Param("status") RequestStatus status);
+            @Param("status") RequestStatus status,
+            @Param("chapterId") String chapterId);
             
     @Modifying
     @Query(value = "UPDATE tutoring_requests SET assigned_tutoring_id = :tutoringId WHERE id = :requestId", nativeQuery = true)

@@ -5,6 +5,7 @@ import com.pragma.tutorings.domain.model.Tutoring;
 import com.pragma.tutorings.domain.port.input.CancelTutoringUseCase;
 import com.pragma.tutorings.domain.port.input.CompleteTutoringUseCase;
 import com.pragma.tutorings.domain.port.input.CreateTutoringUseCase;
+import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CompleteTutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CreateTutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.TutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.UpdateTutoringStatusDto;
@@ -43,9 +44,9 @@ public class TutoringController {
     @PatchMapping("/{tutoringId}/complete")
     public ResponseEntity<OkResponseDto<TutoringDto>> completeTutoring(
             @PathVariable String tutoringId,
-            @Valid @RequestBody UpdateTutoringStatusDto updateDto) {
+            @Valid @RequestBody CompleteTutoringDto completeDto) {
         
-        Tutoring tutoring = completeTutoringUseCase.completeTutoring(tutoringId, updateDto.getUserId());
+        Tutoring tutoring = completeTutoringUseCase.completeTutoring(tutoringId, completeDto.getUserId(), completeDto.getFinalActUrl());
         TutoringDto tutoringDto = tutoringDtoMapper.toDto(tutoring);
         
         return ResponseEntity

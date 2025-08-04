@@ -10,5 +10,5 @@ public interface TutoringRequestRepository {
     TutoringRequest save(TutoringRequest tutoringRequest);
     Optional<TutoringRequest> findById(String id);
     List<TutoringRequest> findAll();
-    List<TutoringRequest> findWithFilters(String tuteeId, String skillId, RequestStatus status);
+    List<TutoringRequest> findWithFilters(String tuteeId, String skillId, RequestStatus status, String chapterId);
 }

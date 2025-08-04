@@ -25,18 +25,8 @@ RUN addgroup --system --gid 1001 appgroup && \
 # Copiar solo el JAR generado desde la etapa de construcción
 COPY --from=build /app/target/*.jar app.jar
 
-# Crear directorio para la base de datos SQLite y dar permisos
-RUN mkdir -p /data && \
-    chown -R appuser:appgroup /data /app
-
-# Configurar volumen para persistencia de datos
-VOLUME /data
-
 # Cambiar al usuario no privilegiado
 USER appuser
-
-# Configurar variables de entorno
-ENV SPRING_DATASOURCE_URL=jdbc:sqlite:/data/mydatabase.db
 
 # Exponer el puerto de la aplicación
 EXPOSE 8080
