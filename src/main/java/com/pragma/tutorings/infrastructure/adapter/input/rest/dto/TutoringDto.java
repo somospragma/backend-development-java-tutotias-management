@@ -22,4 +22,5 @@ public class TutoringDto {
     private Date expectedEndDate;
     private TutoringStatus status;
     private String objectives;
+    private String finalActUrl;
 }

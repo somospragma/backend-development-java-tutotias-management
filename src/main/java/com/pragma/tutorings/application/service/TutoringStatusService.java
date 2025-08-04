@@ -28,8 +28,11 @@ public class TutoringStatusService implements CompleteTutoringUseCase, CancelTut
     private final FeedbackRepository feedbackRepository;
 
     @Override
-    public Tutoring completeTutoring(String tutoringId, String userId) {
+    public Tutoring completeTutoring(String tutoringId, String userId, String finalActUrl) {
         log.info("Iniciando proceso para marcar tutoría como completada. ID: {}, Usuario: {}", tutoringId, userId);
+        
+        // Validar que el acta final es requerida
+        validateFinalActUrl(finalActUrl);
         
         // Validar que la tutoría existe
         Tutoring tutoring = validateTutoringExists(tutoringId);
@@ -44,8 +47,9 @@ public class TutoringStatusService implements CompleteTutoringUseCase, CancelTut
         // Validar que existen feedbacks del tutor y del tutee
         validateFeedbacksExist(tutoringId, tutoring.getTutor().getId(), tutoring.getTutee().getId());
         
-        // Actualizar el estado de la tutoría
+        // Actualizar el estado y el acta final de la tutoría
         tutoring.setStatus(TutoringStatus.Completada);
+        tutoring.setFinalActUrl(finalActUrl);
         
         // Guardar y retornar la tutoría actualizada
         Tutoring updatedTutoring = tutoringRepository.save(tutoring);
@@ -142,6 +146,13 @@ public class TutoringStatusService implements CompleteTutoringUseCase, CancelTut
         if (user.getRol() != RolUsuario.Administrador) {
             log.error("El usuario con ID: {} no es administrador", user.getId());
             throw new IllegalArgumentException("Solo los administradores pueden cancelar tutorías");
+        }
+    }
+    
+    private void validateFinalActUrl(String finalActUrl) {
+        if (finalActUrl == null || finalActUrl.trim().isEmpty()) {
+            log.error("El acta final es requerida para completar la tutoría");
+            throw new IllegalArgumentException("El acta final es requerida para completar la tutoría");
         }
     }
     

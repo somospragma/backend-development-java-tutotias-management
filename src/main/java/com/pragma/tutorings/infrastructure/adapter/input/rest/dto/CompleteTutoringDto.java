@@ -8,11 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateTutoringStatusDto {
+public class CompleteTutoringDto {
     @NotBlank(message = "El ID del usuario es requerido")
     private String userId;
     
-    private String comments;
-    
+    @NotBlank(message = "El acta final es requerida para completar la tutoría")
     private String finalActUrl;
 }
