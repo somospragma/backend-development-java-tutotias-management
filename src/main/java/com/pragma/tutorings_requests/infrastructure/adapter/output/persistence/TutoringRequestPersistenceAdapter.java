@@ -80,8 +80,8 @@ public class TutoringRequestPersistenceAdapter implements TutoringRequestReposit
     }
     
     @Override
-    public List<TutoringRequest> findWithFilters(String tuteeId, String skillId, RequestStatus status) {
-        return repository.findWithFilters(tuteeId, skillId, status).stream()
+    public List<TutoringRequest> findWithFilters(String tuteeId, String skillId, RequestStatus status, String chapterId) {
+        return repository.findWithFilters(tuteeId, skillId, status, chapterId).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }

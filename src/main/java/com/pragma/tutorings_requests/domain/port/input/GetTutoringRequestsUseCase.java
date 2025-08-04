@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface GetTutoringRequestsUseCase {
     List<TutoringRequest> getAllTutoringRequests();
-    List<TutoringRequest> getTutoringRequestsWithFilters(String tuteeId, String skillId, RequestStatus status);
+    List<TutoringRequest> getTutoringRequestsWithFilters(String tuteeId, String skillId, RequestStatus status, String chapterId);
 }

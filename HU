@@ -1,16 +1,16 @@
-# Agregar el filtro de chapter para el listado de request de tutorias.
+ok # Agregar el filtro de chapter para el listado de request de tutorias.
 Quien: Usuario tutor, tutee.
 Como: quiero agregar un filtro de chapter para el listado de solicitud de tutorias.
 Para: poder agregarlo a los filtros que ya existes.
 
 
-# Daschoboar de contador de request, y tutorías según estados. Cuantos mentores activos por chapter,
+ok # Daschoboar de contador de request, y tutorías según estados. Cuantos mentores activos por chapter,
 Quien: Usuario admin.
 Como: quiero tener un dominio de estadisticas con una api.
 Para: poder contar lis request por estado, tutorias por estado y cuantos tutores estan activos.
 
 
-# Agregar camba de acta final al completar la tutoria. Como campo requerido.
+ok # Agregar camba de acta final al completar la tutoria. Como campo requerido.
 Quien: Usuario tutor.
 Como: gestor de lo estados de la tutoria.
 Para: agregar una url para guardar el acta de finalizacion de la tuturia al completar la misma.
