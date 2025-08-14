@@ -21,6 +21,9 @@ servers:
   - url: http://localhost:8080
     description: Servidor de desarrollo
 
+security:
+  - GoogleAuth: []
+
 tags:
   - name: Users
     description: Gestión de usuarios del sistema
@@ -36,6 +39,8 @@ tags:
     description: Gestión de sesiones de tutoría
   - name: Feedbacks
     description: Gestión de retroalimentación
+  - name: Statistics
+    description: Estadísticas del sistema
 
 paths:
   # Users endpoints
@@ -45,6 +50,7 @@ paths:
         - Users
       summary: Crear un nuevo usuario
       description: Crea un nuevo usuario en el sistema
+      security: []
       requestBody:
         required: true
         content:
@@ -64,6 +70,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '409':
+          description: Conflicto - Usuario ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              examples:
+                duplicate_google_id:
+                  summary: Google ID duplicado
+                  value:
+                    message: "User with this Google ID already exists"
+                    timestamp: "2024-01-15T10:30:00Z"
+                duplicate_email:
+                  summary: Email duplicado
+                  value:
+                    message: "User with this email already exists"
+                    timestamp: "2024-01-15T10:30:00Z"
     put:
       tags:
         - Users
@@ -82,14 +105,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
-        '404':
-          description: Usuario no encontrado
         '400':
           description: Datos de entrada inválidos
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '404':
+          description: Usuario no encontrado
 
   /api/v1/users/{id}:
     get:
@@ -111,8 +146,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Usuario no encontrado
+
+  /api/v1/users/me:
+    get:
+      tags:
+        - Users
+      summary: Obtener perfil del usuario actual
+      description: Obtiene la información del usuario autenticado actualmente
+      responses:
+        '200':
+          description: Perfil del usuario actual
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   /api/v1/users/role:
     patch:
@@ -133,6 +206,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Usuario no encontrado
 
@@ -155,8 +240,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '403':
-          description: Operación no permitida
+          description: Prohibido - Usuario no registrado en el sistema o operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Usuario no encontrado
 
@@ -174,6 +269,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OkResponseChapterList'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
     post:
       tags:
         - Chapters
@@ -198,6 +305,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   /api/chapter/{id}:
     get:
@@ -219,6 +338,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OkResponseChapter'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Capítulo no encontrado
           content:
@@ -252,6 +383,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
     get:
       tags:
         - Skills
@@ -266,6 +409,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SkillDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
     put:
       tags:
         - Skills
@@ -284,6 +439,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SkillDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Habilidad no encontrada
 
@@ -307,6 +474,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SkillDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Habilidad no encontrada
     delete:
@@ -324,6 +503,18 @@ paths:
       responses:
         '204':
           description: Habilidad eliminada exitosamente
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Habilidad no encontrada
 
@@ -353,6 +544,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
     get:
       tags:
         - Tutoring Requests
@@ -386,6 +589,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OkResponseTutoringRequestList'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   /api/v1/tutoring-requests/{requestId}/status:
     patch:
@@ -419,8 +634,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Solicitud no encontrada
+
+  /api/v1/tutoring-requests/my-requests:
+    get:
+      tags:
+        - Tutoring Requests
+      summary: Obtener mis solicitudes de tutoría
+      description: Obtiene las solicitudes de tutoría del usuario actual
+      responses:
+        '200':
+          description: Mis solicitudes obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoringRequestList'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   # Tutorings endpoints
   /api/v1/tutorings:
@@ -448,6 +701,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   /api/v1/tutorings/{tutoringId}/complete:
     patch:
@@ -467,7 +732,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateTutoringStatusDto'
+              $ref: '#/components/schemas/CompleteTutoringDto'
       responses:
         '200':
           description: Tutoría completada exitosamente
@@ -481,6 +746,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Tutoría no encontrada
 
@@ -516,6 +793,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Tutoría no encontrada
 
@@ -545,6 +834,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   /api/v1/tutoring-sessions/{id}/status:
     patch:
@@ -578,6 +879,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Sesión no encontrada
 
@@ -607,8 +920,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+
+  # Statistics endpoints
+  /api/v1/statistics/dashboard:
+    get:
+      tags:
+        - Statistics
+      summary: Obtener estadísticas del dashboard
+      description: Obtiene estadísticas generales del sistema para el dashboard
+      parameters:
+        - name: chapterId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: ID del capítulo para filtrar estadísticas
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStatisticsResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
 components:
+  securitySchemes:
+    GoogleAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |
+        Google User ID para autenticación. 
+        
+        **Formato:** Enviar directamente el Google User ID en el header Authorization.
+        
+        **Ejemplo:** `Authorization: 1234567890123456789`
+        
+        **Nota:** En un entorno de producción, esto sería típicamente un JWT token.
+  
   schemas:
     # User schemas
     UserDto:
@@ -627,9 +1000,6 @@ components:
           type: string
           format: email
           description: Correo electrónico del usuario
-        googleUserId:
-          type: string
-          description: ID de Google del usuario
         chapter:
           $ref: '#/components/schemas/ChapterDto'
         rol:
@@ -867,6 +1237,19 @@ components:
         comments:
           type: string
           description: Comentarios adicionales
+
+    CompleteTutoringDto:
+      type: object
+      required:
+        - userId
+        - finalActUrl
+      properties:
+        userId:
+          type: string
+          description: ID del usuario que completa la tutoría
+        finalActUrl:
+          type: string
+          description: URL del acta final de la tutoría
 
     # Tutoring Session schemas
     TutoringSessionDto:
@@ -1116,3 +1499,52 @@ components:
           type: string
           format: date-time
           description: Timestamp del error
+    
+    AuthenticationErrorDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de error de autenticación
+          example: "Authorization header is required"
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp del error
+          example: "2024-01-15T10:30:00Z"
+
+    # Statistics schemas
+    DashboardStatisticsResponseDto:
+      type: object
+      properties:
+        requestsByStatus:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: Número de solicitudes por estado
+          example:
+            Enviada: 5
+            Aprobada: 3
+            Asignada: 10
+            Rechazada: 2
+        tutoringsByStatus:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: Número de tutorías por estado
+          example:
+            Activa: 8
+            Completada: 15
+            Cancelada: 2
+        activeTutorsByChapter:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: Número de tutores activos por capítulo
+          example:
+            "Chapter 1": 5
+            "Chapter 2": 3
+            "Chapter 3": 7

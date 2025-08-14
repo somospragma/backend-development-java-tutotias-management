@@ -1,11 +1,13 @@
 package com.pragma.tutorings_requests.infrastructure.adapter.input.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pragma.shared.context.TestUserContextHelper;
 import com.pragma.tutorings_requests.domain.model.TutoringRequest;
 import com.pragma.tutorings_requests.domain.model.enums.RequestStatus;
 import com.pragma.tutorings_requests.domain.port.input.GetTutoringRequestsUseCase;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.dto.TutoringRequestDto;
 import com.pragma.tutorings_requests.infrastructure.adapter.input.rest.mapper.TutoringRequestDtoMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,6 +75,15 @@ class TutoringRequestControllerFilterTest {
         tutoringRequestDto2.setId(tutoringRequest2.getId());
         tutoringRequestDto2.setRequestStatus(RequestStatus.Aprobada);
         tutoringRequestDto2.setSkills(Arrays.asList());
+        
+        // Set up user context for authentication
+        TestUserContextHelper.setTestUserContext();
+    }
+    
+    @AfterEach
+    void tearDown() {
+        // Clean up user context after each test
+        TestUserContextHelper.clearUserContext();
     }
 
     @Test
@@ -80,7 +91,7 @@ class TutoringRequestControllerFilterTest {
         // Arrange
         List<TutoringRequest> requests = Arrays.asList(tutoringRequest1);
         
-        when(getTutoringRequestsUseCase.getTutoringRequestsWithFilters(eq(tuteeId), eq(skillId), eq(RequestStatus.Enviada)))
+        when(getTutoringRequestsUseCase.getTutoringRequestsWithFilters(eq(tuteeId), eq(skillId), eq(RequestStatus.Enviada), isNull()))
                 .thenReturn(requests);
         when(tutoringRequestDtoMapper.toDto(tutoringRequest1)).thenReturn(tutoringRequestDto1);
 
@@ -102,7 +113,7 @@ class TutoringRequestControllerFilterTest {
         // Arrange
         List<TutoringRequest> requests = Arrays.asList(tutoringRequest1, tutoringRequest2);
         
-        when(getTutoringRequestsUseCase.getTutoringRequestsWithFilters(eq(tuteeId), eq(skillId), isNull()))
+        when(getTutoringRequestsUseCase.getTutoringRequestsWithFilters(eq(tuteeId), eq(skillId), isNull(), isNull()))
                 .thenReturn(requests);
         when(tutoringRequestDtoMapper.toDto(tutoringRequest1)).thenReturn(tutoringRequestDto1);
         when(tutoringRequestDtoMapper.toDto(tutoringRequest2)).thenReturn(tutoringRequestDto2);
@@ -125,7 +136,7 @@ class TutoringRequestControllerFilterTest {
         // Arrange
         List<TutoringRequest> requests = Arrays.asList(tutoringRequest1);
         
-        when(getTutoringRequestsUseCase.getTutoringRequestsWithFilters(eq(tuteeId), isNull(), eq(RequestStatus.Enviada)))
+        when(getTutoringRequestsUseCase.getTutoringRequestsWithFilters(eq(tuteeId), isNull(), eq(RequestStatus.Enviada), isNull()))
                 .thenReturn(requests);
         when(tutoringRequestDtoMapper.toDto(tutoringRequest1)).thenReturn(tutoringRequestDto1);
 
@@ -146,7 +157,7 @@ class TutoringRequestControllerFilterTest {
         // Arrange
         List<TutoringRequest> requests = Arrays.asList(tutoringRequest1);
         
-        when(getTutoringRequestsUseCase.getTutoringRequestsWithFilters(isNull(), eq(skillId), eq(RequestStatus.Enviada)))
+        when(getTutoringRequestsUseCase.getTutoringRequestsWithFilters(isNull(), eq(skillId), eq(RequestStatus.Enviada), isNull()))
                 .thenReturn(requests);
         when(tutoringRequestDtoMapper.toDto(tutoringRequest1)).thenReturn(tutoringRequestDto1);
 
