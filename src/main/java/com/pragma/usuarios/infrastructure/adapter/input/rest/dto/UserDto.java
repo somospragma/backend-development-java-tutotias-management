@@ -15,9 +15,11 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String email;
+    private String slackId;
     @JsonIgnore
     private String googleUserId;
     private ChapterDto chapter;
     private RolUsuario rol;
     private int activeTutoringLimit;
+    private int seniority;
 }
