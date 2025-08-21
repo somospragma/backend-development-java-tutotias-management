@@ -32,6 +32,9 @@ public class UsersEntity implements Serializable {
     @Column(name = "google_user_id", unique = true, nullable = false)
     private String googleUserId; // "ID de usuario de Google para control de sesiones"
 
+    @Column(name = "slack_id")
+    private String slackId; // "ID de usuario de Slack"
+
     @ManyToOne
     private ChapterEntity chapter; // "chapter principal"
 
@@ -41,4 +44,7 @@ public class UsersEntity implements Serializable {
 
     @Column(name = "active_tutoring_limit")
     private int activeTutoringLimit; // Número máximo de tutorías activas para un tutor"
+
+    @Column(name = "seniority")
+    private int seniority; // Nivel de seniority del usuario
 }

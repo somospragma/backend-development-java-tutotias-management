@@ -1,12 +1,14 @@
 package com.pragma.tutorings.infrastructure.adapter.input.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pragma.shared.context.TestUserContextHelper;
 import com.pragma.tutorings.domain.model.Tutoring;
 import com.pragma.tutorings.domain.model.enums.TutoringStatus;
 import com.pragma.tutorings.domain.port.input.CreateTutoringUseCase;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CreateTutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.TutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.mapper.TutoringDtoMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +49,7 @@ class TutoringControllerTest {
 
     @BeforeEach
     void setUp() {
+        TestUserContextHelper.setTestUserContext();
         mockMvc = MockMvcBuilders.standaloneSetup(tutoringController).build();
         objectMapper = new ObjectMapper();
 
@@ -71,6 +74,11 @@ class TutoringControllerTest {
         createTutoringDto.setTutoringRequestId("request-id");
         createTutoringDto.setTutorId("tutor-id");
         createTutoringDto.setObjectives("Objetivos de prueba");
+    }
+
+    @AfterEach
+    void tearDown() {
+        TestUserContextHelper.clearUserContext();
     }
 
     @Test

@@ -29,6 +29,7 @@ public abstract class UserDtoMapper {
     @Mapping(target = "email", ignore = true)
     @Mapping(target = "rol", ignore = true)
     @Mapping(target = "activeTutoringLimit", ignore = true)
+    @Mapping(target = "googleUserId", ignore = true)
     @Mapping(target = "chapter", ignore = true)
     public abstract User toModel(UpdateUserRequestDto dto);
     
@@ -36,6 +37,14 @@ public abstract class UserDtoMapper {
 
     @AfterMapping
     protected void findAndSetChapter(CreateUserDto dto, @MappingTarget User user) {
+        if (dto.getChapterId() != null && !dto.getChapterId().isEmpty()) {
+            Optional<Chapter> chapterOpt = findChapterUseCase.findChapterById(dto.getChapterId());
+            chapterOpt.ifPresent(user::setChapter);
+        }
+    }
+    
+    @AfterMapping
+    protected void findAndSetChapterForUpdate(UpdateUserRequestDto dto, @MappingTarget User user) {
         if (dto.getChapterId() != null && !dto.getChapterId().isEmpty()) {
             Optional<Chapter> chapterOpt = findChapterUseCase.findChapterById(dto.getChapterId());
             chapterOpt.ifPresent(user::setChapter);

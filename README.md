@@ -234,6 +234,13 @@ Gestiona las sesiones individuales dentro de una tutoría, con estados:
 
 Permite a los usuarios proporcionar evaluaciones y comentarios sobre las tutorías.
 
+### 8. Estadísticas (Statistics)
+
+Proporciona métricas y estadísticas del sistema para dashboards administrativos, incluyendo:
+- Solicitudes por estado
+- Tutorías por estado
+- Tutores activos por capítulo
+
 ## Flujos Principales
 
 ### Flujo de Solicitud y Asignación de Tutoría
@@ -275,38 +282,71 @@ Permite a los usuarios proporcionar evaluaciones y comentarios sobre las tutorí
    ```
 
 3. Ejecutar la aplicación:
+   
+   **Desarrollo local (SQLite):**
    ```bash
-   mvn spring-boot:run
+   mvn spring-boot:run -Dspring-boot.run.profiles=local
+   ```
+   
+   **Desarrollo con MySQL:**
+   ```bash
+   mvn spring-boot:run -Dspring-boot.run.profiles=dev
+   ```
+   
+   **Script de desarrollo:**
+   ```bash
+   ./run-dev.sh
    ```
 
 ### Configuración con Docker
 
 También puedes ejecutar la aplicación usando Docker:
 
+**Usando Docker Compose (Recomendado):**
+```bash
+# Levantar toda la infraestructura (MySQL + App)
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+# Detener servicios
+docker-compose down
+```
+
+**Usando Docker directamente:**
 ```bash
 # Construir la imagen
 docker build -t sistematutorias .
-```
 
-```bash
 # Ejecutar el contenedor
-docker run -p 8080:8080 -v sistematutorias-data:/data sistematutorias
+docker run -p 8080:8080 sistematutorias
 ```
 
-```bash
-# Usando docker-compose
-docker-compose up -d
-```
+**Configuración de Base de Datos:**
+- **Local**: SQLite (archivo `mydatabase.db`)
+- **Desarrollo**: MySQL 8.0 con Docker Compose
+- **Variables de entorno**: Configurables para diferentes entornos
 
 ## API REST
 
-La API REST está documentada con OpenAPI. Puedes acceder a la documentación en:
-```
-http://localhost:8080/swagger-ui.html
-```
+La API REST está completamente documentada con OpenAPI 3.0. La documentación incluye:
+- Especificaciones completas de endpoints
+- Esquemas de datos
+- Ejemplos de request/response
+- Códigos de estado HTTP
+- Autenticación con Google ID
+
+**Acceso a la documentación:**
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+- **OpenAPI Spec**: Ver archivo `openapi-complete.yaml`
+
+**Autenticación:**
+La API utiliza autenticación basada en Google User ID enviado en el header `Authorization`. Todos los endpoints requieren autenticación excepto los de monitoreo (`/actuator/*`). Ver la sección [Autenticación con Google ID](#autenticación-con-google-id) para detalles completos.
 
 ### Endpoints Principales
 
+**Endpoints Autenticados (requieren Google ID en header Authorization):**
 - **Usuarios**: `/api/v1/users`
 - **Habilidades**: `/api/v1/skills`
 - **Capítulos**: `/api/chapter`
@@ -314,32 +354,352 @@ http://localhost:8080/swagger-ui.html
 - **Tutorías**: `/api/v1/tutorings`
 - **Sesiones de Tutoría**: `/api/v1/tutoring-sessions`
 - **Retroalimentación**: `/api/v1/feedbacks`
+- **Estadísticas**: `/api/v1/statistics`
 
-## Pruebas
+**Endpoints Públicos (sin autenticación):**
+- **Monitoreo**: `/actuator/health`
 
-El proyecto incluye pruebas unitarias para cada componente. Para ejecutar las pruebas:
+## Pruebas y Calidad de Código
 
+El proyecto incluye pruebas unitarias completas y análisis de cobertura:
+
+**Ejecutar pruebas:**
 ```bash
 mvn test
 ```
 
+**Generar reporte de cobertura:**
+```bash
+mvn clean test jacoco:report
+```
+
+**Ver reporte de cobertura:**
+El reporte se genera en `target/site/jacoco/index.html`
+
+**Cobertura actual:**
+- Pruebas unitarias para todos los servicios
+- Pruebas de controladores REST
+- Pruebas de adaptadores de persistencia
+- Pruebas de integración para autenticación
+- Exclusión de mappers automáticos de la cobertura
+
 ## Tecnologías Utilizadas
 
-- **Spring Boot**: Framework principal
+- **Spring Boot 3.5.0**: Framework principal
+- **Java 21**: Versión de Java
 - **Spring Data JPA**: Persistencia de datos
-- **SQLite**: Base de datos
+- **SQLite**: Base de datos para desarrollo local
+- **MySQL 8.0**: Base de datos para producción
 - **Lombok**: Reducción de código boilerplate
-- **MapStruct**: Mapeo entre objetos
+- **MapStruct 1.5.5**: Mapeo entre objetos
+- **Spring Boot Validation**: Validación de datos
+- **Spring Boot Actuator**: Monitoreo y métricas
 - **JUnit 5**: Pruebas unitarias
+- **JaCoCo**: Cobertura de código
 - **Docker**: Contenerización
+- **OpenAPI 3.0**: Documentación de API
 
 ## Notas para Desarrolladores
 
-- El proyecto sigue los principios SOLID y Clean Architecture.
-- Se utiliza el patrón de diseño Repository para el acceso a datos.
-- Los DTOs (Data Transfer Objects) se utilizan para la comunicación entre capas.
-- Los mappers automatizan la conversión entre entidades de dominio y DTOs/entidades de persistencia.
-- La validación de datos se realiza tanto a nivel de API como de dominio.
+### Arquitectura y Patrones
+- El proyecto sigue los principios SOLID y Clean Architecture
+- Implementa Arquitectura Hexagonal (Ports and Adapters)
+- Utiliza el patrón Repository para acceso a datos
+- Separación clara entre capas de dominio, aplicación e infraestructura
+
+### Convenciones de Código
+- DTOs para comunicación entre capas
+- MapStruct para conversiones automáticas
+- Lombok para reducir boilerplate
+- Validación en múltiples niveles (API y dominio)
+- Manejo centralizado de excepciones
+
+### Configuración de Perfiles
+- **local**: SQLite para desarrollo rápido
+- **dev**: MySQL para entorno de desarrollo
+- **test**: Configuración específica para pruebas
+
+### Autenticación y Seguridad
+- Interceptor personalizado para autenticación Google
+- Context de usuario para operaciones autenticadas
+- Configuración flexible de rutas protegidas
+- Middleware de identificación de usuarios basado en Google ID
+
+### Monitoreo
+- Spring Boot Actuator habilitado
+- Health checks disponibles en `/actuator/health`
+
+## Autenticación con Google ID
+
+### Configuración de Autenticación
+
+El sistema utiliza un middleware de autenticación que identifica a los usuarios mediante Google User IDs enviados en el header `Authorization` de las peticiones HTTP. Este middleware se aplica automáticamente a todos los endpoints de la API.
+
+#### Configuración del Sistema
+
+La autenticación se configura automáticamente al iniciar la aplicación. El interceptor `GoogleAuthInterceptor` se registra para interceptar todas las peticiones a rutas que coincidan con el patrón `/api/**`.
+
+**Propiedades de configuración disponibles:**
+
+```properties
+# application.properties
+# Header de autorización (por defecto: Authorization)
+app.auth.header-name=Authorization
+
+# Patrones de rutas protegidas (por defecto: /api/**)
+app.auth.protected-paths=/api/**
+```
+
+### Cómo Incluir Google ID en Peticiones API
+
+Para realizar peticiones autenticadas a la API, debes incluir el Google User ID en el header `Authorization`:
+
+#### Formato del Header
+
+```http
+Authorization: google_user_id_aqui
+```
+
+#### Ejemplos de Peticiones
+
+**Usando cURL:**
+```bash
+curl -X GET "http://localhost:8080/api/v1/users" \
+  -H "Authorization: 108234567890123456789" \
+  -H "Content-Type: application/json"
+```
+
+**Usando JavaScript (fetch):**
+```javascript
+fetch('http://localhost:8080/api/v1/users', {
+  method: 'GET',
+  headers: {
+    'Authorization': '108234567890123456789',
+    'Content-Type': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+**Usando Postman:**
+1. Agregar header `Authorization` con valor del Google User ID
+2. Realizar la petición normalmente
+
+#### Obtención del Google User ID
+
+El Google User ID se obtiene típicamente del token JWT de Google después de la autenticación. En aplicaciones frontend:
+
+```javascript
+// Ejemplo con Google Sign-In
+google.accounts.id.initialize({
+  client_id: 'tu-client-id.googleusercontent.com',
+  callback: (response) => {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const googleUserId = payload.sub; // Este es el ID que debes enviar
+    
+    // Usar googleUserId en peticiones API
+    makeApiRequest(googleUserId);
+  }
+});
+```
+
+### Uso de UserContext para Desarrolladores
+
+El sistema proporciona la clase `UserContext` para acceder a la información del usuario autenticado desde cualquier parte del código.
+
+#### Acceso al Usuario Actual
+
+```java
+import com.pragma.shared.context.UserContext;
+import com.pragma.usuarios.domain.model.User;
+
+@RestController
+public class MiController {
+    
+    @GetMapping("/mi-endpoint")
+    public ResponseEntity<?> miEndpoint() {
+        // Obtener el usuario autenticado
+        User currentUser = UserContext.getCurrentUser();
+        
+        if (currentUser != null) {
+            // Usar información del usuario
+            String userId = currentUser.getId();
+            String email = currentUser.getEmail();
+            RolUsuario role = currentUser.getRol();
+            
+            // Lógica de negocio...
+        }
+        
+        return ResponseEntity.ok().build();
+    }
+}
+```
+
+#### Métodos Disponibles en UserContext
+
+```java
+// Establecer usuario (usado internamente por el interceptor)
+UserContext.setCurrentUser(user);
+
+// Obtener usuario actual
+User user = UserContext.getCurrentUser();
+
+// Limpiar contexto (usado internamente por el interceptor)
+UserContext.clear();
+```
+
+#### Consideraciones Importantes
+
+1. **Thread Safety**: `UserContext` utiliza `ThreadLocal`, por lo que es seguro en entornos multi-hilo
+2. **Limpieza Automática**: El contexto se limpia automáticamente después de cada petición
+3. **Disponibilidad**: El usuario solo está disponible durante el procesamiento de peticiones autenticadas
+4. **Null Safety**: Siempre verificar que `getCurrentUser()` no retorne `null`
+
+#### Ejemplo de Servicio con UserContext
+
+```java
+@Service
+public class MiServicio {
+    
+    public void operacionQueRequiereUsuario() {
+        User currentUser = UserContext.getCurrentUser();
+        
+        if (currentUser == null) {
+            throw new AuthenticationException("Usuario no autenticado");
+        }
+        
+        // Verificar permisos basados en el rol
+        if (currentUser.getRol() == RolUsuario.ADMINISTRADOR) {
+            // Lógica para administrador
+        } else if (currentUser.getRol() == RolUsuario.TUTOR) {
+            // Lógica para tutor
+        }
+        
+        // Continuar con la lógica de negocio...
+    }
+}
+```
+
+### Guía de Resolución de Problemas
+
+#### Errores Comunes y Soluciones
+
+**1. Error 401 - "Authorization header is required"**
+
+**Causa:** No se incluyó el header `Authorization` en la petición.
+
+**Solución:**
+```bash
+# ❌ Incorrecto
+curl -X GET "http://localhost:8080/api/v1/users"
+
+# ✅ Correcto
+curl -X GET "http://localhost:8080/api/v1/users" \
+  -H "Authorization: 108234567890123456789"
+```
+
+**2. Error 401 - "Invalid authorization header format"**
+
+**Causa:** El header `Authorization` está vacío o tiene formato incorrecto.
+
+**Solución:**
+- Verificar que el Google User ID no esté vacío
+- Asegurar que no hay espacios extra o caracteres especiales
+- El valor debe ser solo el Google User ID (sin prefijos como "Bearer")
+
+**3. Error 403 - "User not registered in the system"**
+
+**Causa:** El Google User ID no corresponde a ningún usuario registrado en la base de datos.
+
+**Solución:**
+1. Verificar que el usuario existe en la tabla `users`
+2. Confirmar que el campo `google_user_id` coincide exactamente
+3. Registrar el usuario si es necesario:
+
+```sql
+-- Verificar usuario existente
+SELECT * FROM users WHERE google_user_id = '108234567890123456789';
+
+-- Registrar nuevo usuario (ejemplo)
+INSERT INTO users (id, first_name, last_name, email, google_user_id, chapter_id, rol, active_tutoring_limit)
+VALUES ('user-id', 'Nombre', 'Apellido', 'email@ejemplo.com', '108234567890123456789', 'chapter-id', 'TUTORADO', 3);
+```
+
+**4. Error 500 - "Internal server error occurred"**
+
+**Causa:** Error en la base de datos o problema interno del sistema.
+
+**Solución:**
+1. Revisar logs de la aplicación
+2. Verificar conectividad con la base de datos
+3. Comprobar configuración de la aplicación
+
+#### Debugging y Logs
+
+**Habilitar logs de autenticación:**
+
+```properties
+# application.properties
+logging.level.com.pragma.shared.security=DEBUG
+logging.level.com.pragma.shared.context=DEBUG
+```
+
+**Logs típicos de autenticación exitosa:**
+```
+DEBUG - GoogleAuthInterceptor: Processing authentication for user: 108234567890123456789
+DEBUG - UserContext: Setting current user: user@ejemplo.com
+INFO  - Authentication successful for user: user@ejemplo.com
+```
+
+**Logs típicos de errores de autenticación:**
+```
+WARN  - GoogleAuthInterceptor: Missing Authorization header
+WARN  - GoogleAuthInterceptor: User not found for Google ID: 108234567890123456789
+ERROR - GoogleAuthInterceptor: Database error during user lookup
+```
+
+#### Herramientas de Diagnóstico
+
+**1. Verificar configuración del interceptor:**
+```bash
+# Endpoint de health check (no requiere autenticación)
+curl http://localhost:8080/actuator/health
+```
+
+**2. Probar autenticación con usuario conocido:**
+```bash
+# Usar un Google ID que sepas que existe en la BD
+curl -X GET "http://localhost:8080/api/v1/users" \
+  -H "Authorization: GOOGLE_ID_CONOCIDO" \
+  -v  # Verbose para ver headers de respuesta
+```
+
+**3. Verificar base de datos:**
+```sql
+-- Listar usuarios con Google ID
+SELECT id, email, google_user_id, rol FROM users WHERE google_user_id IS NOT NULL;
+
+-- Verificar usuario específico
+SELECT * FROM users WHERE google_user_id = 'TU_GOOGLE_ID';
+```
+
+#### Configuración de Desarrollo
+
+Para desarrollo y pruebas, puedes configurar un usuario de prueba:
+
+```sql
+-- Usuario de prueba para desarrollo
+INSERT INTO users (id, first_name, last_name, email, google_user_id, chapter_id, rol, active_tutoring_limit)
+VALUES 
+('dev-user-1', 'Usuario', 'Desarrollo', 'dev@test.com', 'dev-google-id-123', 'chapter-1', 'ADMINISTRADOR', 5);
+```
+
+Luego usar en peticiones de desarrollo:
+```bash
+curl -X GET "http://localhost:8080/api/v1/users" \
+  -H "Authorization: dev-google-id-123"
+```
 
 ## Contribución
 

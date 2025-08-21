@@ -21,6 +21,9 @@ servers:
   - url: http://localhost:8080
     description: Servidor de desarrollo
 
+security:
+  - GoogleAuth: []
+
 tags:
   - name: Users
     description: Gestión de usuarios del sistema
@@ -36,6 +39,12 @@ tags:
     description: Gestión de sesiones de tutoría
   - name: Feedbacks
     description: Gestión de retroalimentación
+  - name: Statistics
+    description: Estadísticas del sistema
+  - name: Profile
+    description: Información de perfil y contexto de usuario
+  - name: Health
+    description: Endpoints de monitoreo y salud de la aplicación
 
 paths:
   # Users endpoints
@@ -44,7 +53,7 @@ paths:
       tags:
         - Users
       summary: Crear un nuevo usuario
-      description: Crea un nuevo usuario en el sistema
+      description: Crea un nuevo usuario en el sistema (solo administradores)
       requestBody:
         required: true
         content:
@@ -64,6 +73,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '409':
+          description: Conflicto - Usuario ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              examples:
+                duplicate_google_id:
+                  summary: Google ID duplicado
+                  value:
+                    message: "User with this Google ID already exists"
+                    timestamp: "2024-01-15T10:30:00Z"
+                duplicate_email:
+                  summary: Email duplicado
+                  value:
+                    message: "User with this email already exists"
+                    timestamp: "2024-01-15T10:30:00Z"
     put:
       tags:
         - Users
@@ -82,14 +108,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
-        '404':
-          description: Usuario no encontrado
         '400':
           description: Datos de entrada inválidos
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '404':
+          description: Usuario no encontrado
 
   /api/v1/users/{id}:
     get:
@@ -111,8 +149,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Usuario no encontrado
+
+  /api/v1/users/me:
+    get:
+      tags:
+        - Users
+      summary: Obtener perfil del usuario actual
+      description: Obtiene la información del usuario autenticado actualmente
+      responses:
+        '200':
+          description: Perfil del usuario actual
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseUser'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   /api/v1/users/role:
     patch:
@@ -133,6 +209,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Usuario no encontrado
 
@@ -155,13 +243,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '403':
-          description: Operación no permitida
+          description: Prohibido - Usuario no registrado en el sistema o operación no permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Usuario no encontrado
 
   # Chapters endpoints
-  /api/chapter/:
+  /api/v1/chapter/:
     get:
       tags:
         - Chapters
@@ -174,6 +272,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OkResponseChapterList'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
     post:
       tags:
         - Chapters
@@ -198,8 +308,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
-  /api/chapter/{id}:
+  /api/v1/chapter/{id}:
     get:
       tags:
         - Chapters
@@ -219,6 +341,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OkResponseChapter'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Capítulo no encontrado
           content:
@@ -245,13 +379,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SkillDto'
+                $ref: '#/components/schemas/OkResponseSkill'
         '400':
           description: Datos de entrada inválidos
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
     get:
       tags:
         - Skills
@@ -263,9 +409,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SkillDto'
+                $ref: '#/components/schemas/OkResponseSkillList'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
     put:
       tags:
         - Skills
@@ -283,7 +439,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SkillDto'
+                $ref: '#/components/schemas/OkResponseSkill'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Habilidad no encontrada
 
@@ -306,7 +474,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SkillDto'
+                $ref: '#/components/schemas/OkResponseSkill'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Habilidad no encontrada
     delete:
@@ -322,8 +502,24 @@ paths:
             type: string
           description: ID de la habilidad
       responses:
-        '204':
+        '200':
           description: Habilidad eliminada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseVoid'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Habilidad no encontrada
 
@@ -353,6 +549,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
     get:
       tags:
         - Tutoring Requests
@@ -386,6 +594,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OkResponseTutoringRequestList'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   /api/v1/tutoring-requests/{requestId}/status:
     patch:
@@ -419,8 +639,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Solicitud no encontrada
+
+  /api/v1/tutoring-requests/my-requests:
+    get:
+      tags:
+        - Tutoring Requests
+      summary: Obtener mis solicitudes de tutoría
+      description: Obtiene las solicitudes de tutoría del usuario actual
+      responses:
+        '200':
+          description: Mis solicitudes y tutorías obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseMyRequests'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   # Tutorings endpoints
   /api/v1/tutorings:
@@ -448,6 +706,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   /api/v1/tutorings/{tutoringId}/complete:
     patch:
@@ -467,7 +737,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateTutoringStatusDto'
+              $ref: '#/components/schemas/CompleteTutoringDto'
       responses:
         '200':
           description: Tutoría completada exitosamente
@@ -481,6 +751,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Tutoría no encontrada
 
@@ -516,6 +798,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Tutoría no encontrada
 
@@ -545,6 +839,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
   /api/v1/tutoring-sessions/{id}/status:
     patch:
@@ -578,6 +884,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
         '404':
           description: Sesión no encontrada
 
@@ -607,8 +925,201 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+
+  # Profile endpoints (for testing and user context)
+  /api/v1/profile/me:
+    get:
+      tags:
+        - Profile
+      summary: Obtener perfil del usuario actual
+      description: Obtiene información del perfil del usuario autenticado
+      responses:
+        '200':
+          description: Perfil obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseProfile'
+        '401':
+          description: Usuario no autenticado
+
+  /api/v1/profile/permissions:
+    get:
+      tags:
+        - Profile
+      summary: Obtener permisos del usuario
+      description: Obtiene los permisos y capacidades del usuario actual
+      responses:
+        '200':
+          description: Permisos obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponsePermissions'
+        '401':
+          description: Usuario no autenticado
+
+  /api/v1/profile/context-status:
+    get:
+      tags:
+        - Profile
+      summary: Obtener estado del contexto de usuario
+      description: Obtiene información sobre el estado del contexto de autenticación
+      responses:
+        '200':
+          description: Estado del contexto obtenido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseContextStatus'
+
+  /api/v1/profile/admin-info:
+    get:
+      tags:
+        - Profile
+      summary: Obtener información de administrador
+      description: Endpoint exclusivo para administradores
+      responses:
+        '200':
+          description: Información de administrador obtenida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseAdminInfo'
+        '401':
+          description: Usuario no autenticado
+        '403':
+          description: Acceso denegado - se requieren privilegios de administrador
+
+  /api/v1/profile/user/{userId}/access-check:
+    get:
+      tags:
+        - Profile
+      summary: Verificar acceso a recurso de usuario
+      description: Verifica si el usuario actual puede acceder a un recurso específico
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del usuario a verificar
+      responses:
+        '200':
+          description: Verificación de acceso completada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseAccessCheck'
+        '401':
+          description: Usuario no autenticado
+
+  /api/v1/profile/public-info:
+    get:
+      tags:
+        - Profile
+      summary: Obtener información pública
+      description: Endpoint público que funciona con o sin autenticación
+      security: []
+      responses:
+        '200':
+          description: Información pública obtenida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponsePublicInfo'
+
+  # Health Check endpoints
+  /actuator/health:
+    get:
+      tags:
+        - Health
+      summary: Health Check
+      description: Endpoint de verificación de salud de la aplicación
+      security: []
+      responses:
+        '200':
+          description: Aplicación funcionando correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+        '503':
+          description: Aplicación no disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: DOWN
+
+  # Statistics endpoints
+  /api/v1/statistics/dashboard:
+    get:
+      tags:
+        - Statistics
+      summary: Obtener estadísticas del dashboard
+      description: Obtiene estadísticas generales del sistema para el dashboard
+      parameters:
+        - name: chapterId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: ID del capítulo para filtrar estadísticas
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStatisticsResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
 
 components:
+  securitySchemes:
+    GoogleAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |
+        Google User ID para autenticación. 
+        
+        **Formato:** Enviar directamente el Google User ID en el header Authorization.
+        
+        **Ejemplo:** `Authorization: 1234567890123456789`
+        
+        **Nota:** En un entorno de producción, esto sería típicamente un JWT token.
+  
   schemas:
     # User schemas
     UserDto:
@@ -627,9 +1138,9 @@ components:
           type: string
           format: email
           description: Correo electrónico del usuario
-        googleUserId:
+        slackId:
           type: string
-          description: ID de Google del usuario
+          description: ID de Slack del usuario
         chapter:
           $ref: '#/components/schemas/ChapterDto'
         rol:
@@ -637,6 +1148,9 @@ components:
         activeTutoringLimit:
           type: integer
           description: Límite de tutorías activas
+        seniority:
+          type: integer
+          description: Nivel de seniority del usuario
 
     CreateUserDto:
       type: object
@@ -663,6 +1177,9 @@ components:
         chapterId:
           type: string
           description: ID del capítulo al que pertenece
+        seniority:
+          type: integer
+          description: Nivel de seniority del usuario
 
     UpdateUserRequestDto:
       type: object
@@ -868,6 +1385,19 @@ components:
           type: string
           description: Comentarios adicionales
 
+    CompleteTutoringDto:
+      type: object
+      required:
+        - userId
+        - finalActUrl
+      properties:
+        userId:
+          type: string
+          description: ID del usuario que completa la tutoría
+        finalActUrl:
+          type: string
+          description: URL del acta final de la tutoría
+
     # Tutoring Session schemas
     TutoringSessionDto:
       type: object
@@ -975,34 +1505,34 @@ components:
     RolUsuario:
       type: string
       enum:
-        - Tutor
-        - Tutorado
-        - Administrador
+        - TUTOR
+        - TUTORADO
+        - ADMINISTRADOR
       description: Rol del usuario en el sistema
 
     RequestStatus:
       type: string
       enum:
-        - Enviada
-        - Aprobada
-        - Asignada
-        - Rechazada
+        - ENVIADA
+        - APROBADA
+        - ASIGNADA
+        - RECHAZADA
       description: Estado de la solicitud de tutoría
 
     TutoringStatus:
       type: string
       enum:
-        - Activa
-        - Completada
-        - Cancelada
+        - ACTIVA
+        - COMPLETADA
+        - CANCELADA
       description: Estado de la tutoría
 
     TutoringsSessionStatus:
       type: string
       enum:
-        - Programada
-        - Realizada
-        - Cancelada
+        - PROGRAMADA
+        - REALIZADA
+        - CANCELADA
       description: Estado de la sesión de tutoría
 
     # Response wrappers
@@ -1116,3 +1646,287 @@ components:
           type: string
           format: date-time
           description: Timestamp del error
+    
+    AuthenticationErrorDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de error de autenticación
+          example: "Authorization header is required"
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp del error
+          example: "2024-01-15T10:30:00Z"
+
+    # Statistics schemas
+    DashboardStatisticsResponseDto:
+      type: object
+      properties:
+        requestsByStatus:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: Número de solicitudes por estado
+          example:
+            ENVIADA: 5
+            APROBADA: 3
+            ASIGNADA: 10
+            RECHAZADA: 2
+        tutoringsByStatus:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: Número de tutorías por estado
+          example:
+            ACTIVA: 8
+            COMPLETADA: 15
+            CANCELADA: 2
+        activeTutorsByChapter:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          description: Número de tutores activos por capítulo
+          example:
+            "Chapter 1": 5
+            "Chapter 2": 3
+            "Chapter 3": 7
+
+    OkResponseUser:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          $ref: '#/components/schemas/UserDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseSkill:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          $ref: '#/components/schemas/SkillDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseSkillList:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseVoid:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: object
+          nullable: true
+          description: Datos de respuesta (null para operaciones void)
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    MyRequestsResponseDto:
+      type: object
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/TutoringRequestDto'
+          description: Solicitudes de tutoría del usuario
+        tutoringsAsTutor:
+          type: array
+          items:
+            $ref: '#/components/schemas/TutoringDto'
+          description: Tutorías donde el usuario es tutor
+        tutoringsAsTutee:
+          type: array
+          items:
+            $ref: '#/components/schemas/TutoringDto'
+          description: Tutorías donde el usuario es tutorado
+
+    OkResponseMyRequests:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          $ref: '#/components/schemas/MyRequestsResponseDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseProfile:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+            role:
+              type: string
+            chapterId:
+              type: string
+            activeTutoringLimit:
+              type: integer
+        timestamp:
+          type: string
+          format: date-time
+
+    OkResponsePermissions:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: object
+          properties:
+            isAdmin:
+              type: boolean
+            canActAsTutor:
+              type: boolean
+            canRequestTutoring:
+              type: boolean
+            hasStudentRole:
+              type: boolean
+            hasTutorRole:
+              type: boolean
+            hasAdminRole:
+              type: boolean
+        timestamp:
+          type: string
+          format: date-time
+
+    OkResponseContextStatus:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: object
+          properties:
+            hasAuthenticatedUser:
+              type: boolean
+            contextAvailable:
+              type: boolean
+            userId:
+              type: string
+            userEmail:
+              type: string
+            userRole:
+              type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    OkResponseAdminInfo:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: object
+          properties:
+            adminUserId:
+              type: string
+            adminEmail:
+              type: string
+            logInfo:
+              type: string
+            accessTime:
+              type: integer
+              format: int64
+        timestamp:
+          type: string
+          format: date-time
+
+    OkResponseAccessCheck:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: object
+          properties:
+            requestedUserId:
+              type: string
+            currentUserId:
+              type: string
+            canAccess:
+              type: boolean
+            isOwnResource:
+              type: boolean
+            isAdmin:
+              type: boolean
+            accessValidation:
+              type: string
+              enum: [GRANTED, DENIED]
+        timestamp:
+          type: string
+          format: date-time
+
+    OkResponsePublicInfo:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: object
+          properties:
+            endpoint:
+              type: string
+            timestamp:
+              type: integer
+              format: int64
+            authenticatedUser:
+              type: string
+              nullable: true
+            userRole:
+              type: string
+              nullable: true
+        timestamp:
+          type: string
+          format: date-time
