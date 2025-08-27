@@ -13,6 +13,4 @@ public class UpdateTutoringStatusDto {
     private String userId;
     
     private String comments;
-    
-    private String finalActUrl;
 }
