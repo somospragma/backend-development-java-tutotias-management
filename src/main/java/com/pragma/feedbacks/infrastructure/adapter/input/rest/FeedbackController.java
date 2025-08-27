@@ -33,13 +33,6 @@ public class FeedbackController {
         log.info("User {} creating feedback for tutoring: {}", 
                 currentUser.getEmail(), createFeedbackDto.getTutoringId());
         
-        // Validate that user can provide feedback (tutors and admins can provide feedback)
-        if (!UserContextHelper.canActAsTutor()) {
-            log.warn("User {} attempted to create feedback without tutor privileges", currentUser.getEmail());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(OkResponseDto.of("No tiene permisos para crear feedback", null));
-        }
-        
         // Set the current user as the evaluator
         createFeedbackDto.setEvaluatorId(currentUser.getId());
         
