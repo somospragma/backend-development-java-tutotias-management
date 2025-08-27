@@ -51,12 +51,12 @@ public class TutoringRequestService implements
         try {
             log.info("Actualizando estado de solicitud de tutoría con ID: {} a estado: {}", requestId, newStatus);
             
-            // Validar permisos según el rol del usuario
-            validateStatusChangePermissions(newStatus);
-            
             // Buscar la solicitud por ID
             TutoringRequest tutoringRequest = tutoringRequestRepository.findById(requestId)
                     .orElseThrow(() -> new RuntimeException("Solicitud de tutoría no encontrada con ID: " + requestId));
+            
+            // Validar permisos según el rol del usuario y estado de la solicitud
+            validateStatusChangePermissions(newStatus, tutoringRequest);
             
             // Validar transición de estado
             validateStatusTransition(tutoringRequest.getRequestStatus(), newStatus);
@@ -75,13 +75,19 @@ public class TutoringRequestService implements
         }
     }
     
-    private void validateStatusChangePermissions(RequestStatus newStatus) {
+    private void validateStatusChangePermissions(RequestStatus newStatus, TutoringRequest tutoringRequest) {
         RolUsuario userRole = UserContextHelper.getCurrentUserOrThrow().getRol();
         
         switch (newStatus) {
-            case Aprobada, Cancelada -> {
+            case Aprobada -> {
                 if (userRole != RolUsuario.Administrador) {
-                    throw new SecurityException("Solo los administradores pueden cambiar el estado a " + newStatus);
+                    throw new SecurityException("Solo los administradores pueden aprobar solicitudes");
+                }
+            }
+            case Cancelada -> {
+                // Si no tiene tutoría asignada, cualquier usuario puede cancelar
+                if (tutoringRequest.getAssignedTutoringId() != null && userRole != RolUsuario.Administrador) {
+                    throw new SecurityException("Solo los administradores pueden cancelar solicitudes con tutoría asignada");
                 }
             }
             case Conversando, Asignada, Finalizada -> {

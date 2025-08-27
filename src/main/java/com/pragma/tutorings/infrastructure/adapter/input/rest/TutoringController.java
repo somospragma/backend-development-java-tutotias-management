@@ -6,8 +6,10 @@ import com.pragma.tutorings.domain.model.Tutoring;
 import com.pragma.tutorings.domain.port.input.CancelTutoringUseCase;
 import com.pragma.tutorings.domain.port.input.CompleteTutoringUseCase;
 import com.pragma.tutorings.domain.port.input.CreateTutoringUseCase;
+import com.pragma.tutorings.domain.port.input.RequestCancellationUseCase;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CompleteTutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CreateTutoringDto;
+import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.RequestCancellationDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.TutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.UpdateTutoringStatusDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.mapper.TutoringDtoMapper;
@@ -29,6 +31,7 @@ public class TutoringController {
     private final CreateTutoringUseCase createTutoringUseCase;
     private final CompleteTutoringUseCase completeTutoringUseCase;
     private final CancelTutoringUseCase cancelTutoringUseCase;
+    private final RequestCancellationUseCase requestCancellationUseCase;
     private final TutoringDtoMapper tutoringDtoMapper;
 
     @PostMapping
@@ -94,27 +97,39 @@ public class TutoringController {
             @Valid @RequestBody UpdateTutoringStatusDto updateDto) {
         
         User currentUser = UserContextHelper.getCurrentUserOrThrow();
-        log.info("User {} canceling tutoring: {} with reason: {}", 
-                currentUser.getEmail(), tutoringId, updateDto.getComments());
         
-        // Validate that user can cancel tutorings (tutors and admins)
-        if (!UserContextHelper.canActAsTutor()) {
-            log.warn("User {} attempted to cancel tutoring without tutor privileges", currentUser.getEmail());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(OkResponseDto.of("No tiene permisos para cancelar tutorías", null));
+        // If user is admin, proceed with cancellation
+        if (UserContextHelper.isCurrentUserAdmin()) {
+            log.info("Admin {} canceling tutoring: {} with reason: {}", 
+                    currentUser.getEmail(), tutoringId, updateDto.getComments());
+            
+            updateDto.setUserId(currentUser.getId());
+            
+            Tutoring tutoring = cancelTutoringUseCase.cancelTutoring(
+                    tutoringId, updateDto.getUserId(), updateDto.getComments());
+            TutoringDto tutoringDto = tutoringDtoMapper.toDto(tutoring);
+            
+            log.info("Admin {} successfully canceled tutoring: {}", currentUser.getEmail(), tutoringId);
+            
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(OkResponseDto.of("Tutoría cancelada exitosamente", tutoringDto));
+        } else {
+            // If user is not admin, request cancellation
+            log.info("User {} requesting cancellation for tutoring: {} with reason: {}", 
+                    currentUser.getEmail(), tutoringId, updateDto.getComments());
+            
+            updateDto.setUserId(currentUser.getId());
+            
+            Tutoring tutoring = requestCancellationUseCase.requestCancellation(
+                    tutoringId, updateDto.getUserId(), updateDto.getComments());
+            TutoringDto tutoringDto = tutoringDtoMapper.toDto(tutoring);
+            
+            log.info("User {} successfully requested cancellation for tutoring: {}", currentUser.getEmail(), tutoringId);
+            
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(OkResponseDto.of("Solicitud de cancelación enviada exitosamente", tutoringDto));
         }
-        
-        // Set the current user as the one canceling the tutoring
-        updateDto.setUserId(currentUser.getId());
-        
-        Tutoring tutoring = cancelTutoringUseCase.cancelTutoring(
-                tutoringId, updateDto.getUserId(), updateDto.getComments());
-        TutoringDto tutoringDto = tutoringDtoMapper.toDto(tutoring);
-        
-        log.info("User {} successfully canceled tutoring: {}", currentUser.getEmail(), tutoringId);
-        
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(OkResponseDto.of("Tutoría cancelada exitosamente", tutoringDto));
     }
 }

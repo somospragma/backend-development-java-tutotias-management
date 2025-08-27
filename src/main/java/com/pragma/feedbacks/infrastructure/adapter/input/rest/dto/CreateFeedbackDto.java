@@ -1,5 +1,6 @@
 package com.pragma.feedbacks.infrastructure.adapter.input.rest.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateFeedbackDto {
+    @JsonIgnore
     @NotBlank(message = "El ID del evaluador es obligatorio")
     private String evaluatorId;
     

@@ -44,6 +44,7 @@ class TutoringStatusServiceTest {
     private User admin;
     private Tutoring activeTutoring;
     private Tutoring completedTutoring;
+    private Tutoring inCancellationTutoring;
     private Feedback tutorFeedback;
     private Feedback tuteeFeedback;
 
@@ -85,6 +86,15 @@ class TutoringStatusServiceTest {
         completedTutoring.setExpectedEndDate(new Date());
         completedTutoring.setStatus(TutoringStatus.Completada);
         completedTutoring.setObjectives("Objetivos de prueba");
+
+        inCancellationTutoring = new Tutoring();
+        inCancellationTutoring.setId("in-cancellation-tutoring-id");
+        inCancellationTutoring.setTutor(tutor);
+        inCancellationTutoring.setTutee(tutee);
+        inCancellationTutoring.setStartDate(new Date());
+        inCancellationTutoring.setExpectedEndDate(new Date());
+        inCancellationTutoring.setStatus(TutoringStatus.EnCancelacion);
+        inCancellationTutoring.setObjectives("Objetivos de prueba");
 
         tutorFeedback = new Feedback();
         tutorFeedback.setId("tutor-feedback-id");
@@ -252,10 +262,75 @@ class TutoringStatusServiceTest {
     }
 
     @Test
+    void requestCancellation_ByTutor_Success() {
+        // Arrange
+        String cancellationReason = "No puedo continuar con la tutoría";
+        when(tutoringRepository.findById("tutoring-id")).thenReturn(Optional.of(activeTutoring));
+        when(findUserByIdUseCase.findUserById("tutor-id")).thenReturn(Optional.of(tutor));
+        when(feedbackRepository.save(any(Feedback.class))).thenReturn(new Feedback());
+        when(tutoringRepository.save(any(Tutoring.class))).thenAnswer(invocation -> {
+            Tutoring savedTutoring = invocation.getArgument(0);
+            savedTutoring.setStatus(TutoringStatus.EnCancelacion);
+            return savedTutoring;
+        });
+
+        // Act
+        Tutoring result = tutoringStatusService.requestCancellation("tutoring-id", "tutor-id", cancellationReason);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(TutoringStatus.EnCancelacion, result.getStatus());
+        verify(feedbackRepository).save(any(Feedback.class));
+        verify(tutoringRepository).save(any(Tutoring.class));
+    }
+
+    @Test
+    void requestCancellation_ByTutee_Success() {
+        // Arrange
+        String cancellationReason = "Ya no necesito la tutoría";
+        when(tutoringRepository.findById("tutoring-id")).thenReturn(Optional.of(activeTutoring));
+        when(findUserByIdUseCase.findUserById("tutee-id")).thenReturn(Optional.of(tutee));
+        when(feedbackRepository.save(any(Feedback.class))).thenReturn(new Feedback());
+        when(tutoringRepository.save(any(Tutoring.class))).thenAnswer(invocation -> {
+            Tutoring savedTutoring = invocation.getArgument(0);
+            savedTutoring.setStatus(TutoringStatus.EnCancelacion);
+            return savedTutoring;
+        });
+
+        // Act
+        Tutoring result = tutoringStatusService.requestCancellation("tutoring-id", "tutee-id", cancellationReason);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(TutoringStatus.EnCancelacion, result.getStatus());
+        verify(feedbackRepository).save(any(Feedback.class));
+        verify(tutoringRepository).save(any(Tutoring.class));
+    }
+
+    @Test
+    void requestCancellation_UnauthorizedUser() {
+        // Arrange
+        User otherUser = new User();
+        otherUser.setId("other-user-id");
+        otherUser.setRol(RolUsuario.Tutor);
+
+        when(tutoringRepository.findById("tutoring-id")).thenReturn(Optional.of(activeTutoring));
+        when(findUserByIdUseCase.findUserById("other-user-id")).thenReturn(Optional.of(otherUser));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            tutoringStatusService.requestCancellation("tutoring-id", "other-user-id", "Razón");
+        });
+
+        assertEquals("No tienes permisos para solicitar la cancelación de esta tutoría", exception.getMessage());
+        verify(tutoringRepository, never()).save(any(Tutoring.class));
+    }
+
+    @Test
     void cancelTutoring_ByAdmin_Success() {
         // Arrange
         String cancellationComment = "Cancelada por inactividad";
-        when(tutoringRepository.findById("tutoring-id")).thenReturn(Optional.of(activeTutoring));
+        when(tutoringRepository.findById("in-cancellation-tutoring-id")).thenReturn(Optional.of(inCancellationTutoring));
         when(findUserByIdUseCase.findUserById("admin-id")).thenReturn(Optional.of(admin));
         when(feedbackRepository.save(any(Feedback.class))).thenReturn(new Feedback());
         when(tutoringRepository.save(any(Tutoring.class))).thenAnswer(invocation -> {
@@ -265,7 +340,7 @@ class TutoringStatusServiceTest {
         });
 
         // Act
-        Tutoring result = tutoringStatusService.cancelTutoring("tutoring-id", "admin-id", cancellationComment);
+        Tutoring result = tutoringStatusService.cancelTutoring("in-cancellation-tutoring-id", "admin-id", cancellationComment);
 
         // Assert
         assertNotNull(result);
@@ -290,16 +365,16 @@ class TutoringStatusServiceTest {
     }
 
     @Test
-    void cancelTutoring_TutoringNotActive() {
+    void cancelTutoring_TutoringNotInCancellation() {
         // Arrange
-        when(tutoringRepository.findById("completed-tutoring-id")).thenReturn(Optional.of(completedTutoring));
+        when(tutoringRepository.findById("tutoring-id")).thenReturn(Optional.of(activeTutoring));
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            tutoringStatusService.cancelTutoring("completed-tutoring-id", "admin-id", "Comentario de cancelación");
+            tutoringStatusService.cancelTutoring("tutoring-id", "admin-id", "Comentario de cancelación");
         });
 
-        assertEquals("No se puede cambiar el estado de la tutoría porque no está en estado Activa", exception.getMessage());
+        assertEquals("No se puede cancelar la tutoría porque no está en estado EnCancelacion", exception.getMessage());
         verify(tutoringRepository, never()).save(any(Tutoring.class));
     }
 
