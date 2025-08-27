@@ -21,9 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -42,6 +45,27 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         return ErrorResponseDto.of(messageService.getMessage("general.validation.failed"), errors);
+    }
+    
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseDto handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
+        log.warn("JSON_PARSE_ERROR - Invalid JSON format: uri={}, error={}", 
+                getRequestUri(request), ex.getMessage());
+        
+        String userMessage = "Formato de datos inválido";
+        
+        if (ex.getCause() instanceof InvalidFormatException) {
+            InvalidFormatException ife = (InvalidFormatException) ex.getCause();
+            if (ife.getTargetType().isEnum()) {
+                Object[] enumValues = ife.getTargetType().getEnumConstants();
+                String validValues = Arrays.toString(enumValues);
+                userMessage = String.format("Valor inválido '%s'. Los valores permitidos son: %s", 
+                        ife.getValue(), validValues);
+            }
+        }
+        
+        return ErrorResponseDto.of(userMessage);
     }
     
     @ExceptionHandler(MissingAuthorizationException.class)
