@@ -1,6 +1,7 @@
 package com.pragma.usuarios.infrastructure.adapter.output.persistence;
 
 import com.pragma.usuarios.domain.model.User;
+import com.pragma.usuarios.domain.model.enums.RolUsuario;
 import com.pragma.usuarios.domain.port.output.UserRepository;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.entity.UsersEntity;
 import com.pragma.usuarios.infrastructure.adapter.output.persistence.mapper.UserMapper;
@@ -47,6 +48,16 @@ public class UserPersistenceAdapter implements UserRepository {
     @Override
     public List<User> findAll() {
         return repository.findAll().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> findByFilters(String estado, RolUsuario rol, String chapterId) {
+        return repository.findAll().stream()
+                .filter(userEntity -> rol == null || userEntity.getRol() == rol)
+                .filter(userEntity -> chapterId == null || (userEntity.getChapter() != null && chapterId.equals(userEntity.getChapter().getId())))
+                // .filter(userEntity -> estado == null || ... ) // Filtro de estado pendiente
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }

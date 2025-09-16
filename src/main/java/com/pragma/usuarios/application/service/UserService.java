@@ -12,6 +12,7 @@ import com.pragma.usuarios.domain.port.output.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -85,5 +86,9 @@ public class UserService implements CreateUserUseCase, UpdateUserUseCase, FindUs
     @Override
     public Optional<User> findUserByGoogleId(String googleUserId) {
         return userRepository.findByGoogleUserId(googleUserId);
+    }
+
+    public List<User> findUsersByFilters(String estado, RolUsuario rol, String chapterId) {
+        return userRepository.findByFilters(estado, rol, chapterId);
     }
 }
