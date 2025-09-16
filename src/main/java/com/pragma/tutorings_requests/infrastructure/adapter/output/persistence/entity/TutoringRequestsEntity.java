@@ -50,4 +50,23 @@ public class TutoringRequestsEntity implements Serializable {
     @JoinColumn(name ="assigned_tutoring_id",
             referencedColumnName ="id")
     private TutoringEntity assignedTutoringId; // "ID de la tutoría resultante de esta solicitud (puede ser NULL)"
+    
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+    
+    @Column(name = "updated_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
+    
+    @PrePersist
+    protected void onCreate() {
+        createdAt = new Date();
+        updatedAt = new Date();
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = new Date();
+    }
 }

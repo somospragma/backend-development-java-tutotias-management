@@ -23,4 +23,6 @@ public class Tutoring {
     private TutoringStatus status;
     private String objectives;
     private String finalActUrl;
+    private Date createdAt;
+    private Date updatedAt;
 }

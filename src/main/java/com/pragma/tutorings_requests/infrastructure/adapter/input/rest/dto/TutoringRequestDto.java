@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -17,5 +18,9 @@ public class TutoringRequestDto {
     private UserDto tutee;
     private List<SkillDto> skills;
     private String needsDescription;
+    private Date requestDate;
     private RequestStatus requestStatus;
+    private String assignedTutoringId;
+    private Date createdAt;
+    private Date updatedAt;
 }

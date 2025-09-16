@@ -36,6 +36,10 @@ public class TutoringRequestService implements
             // Establecer el estado por defecto como Pendiente
             tutoringRequest.setRequestStatus(RequestStatus.Pendiente);
             
+            // Establecer fechas de creación y actualización
+            tutoringRequest.setCreatedAt(new Date());
+            tutoringRequest.setUpdatedAt(new Date());
+            
             TutoringRequest savedRequest = tutoringRequestRepository.save(tutoringRequest);
             log.info("Solicitud de tutoría guardada exitosamente con ID: {}", savedRequest.getId());
             
@@ -63,6 +67,9 @@ public class TutoringRequestService implements
             
             // Actualizar el estado
             tutoringRequest.setRequestStatus(newStatus);
+            
+            // Actualizar fecha de modificación
+            tutoringRequest.setUpdatedAt(new Date());
             
             // Guardar los cambios
             TutoringRequest updatedRequest = tutoringRequestRepository.save(tutoringRequest);
