@@ -96,7 +96,7 @@ public class TutoringService implements CreateTutoringUseCase {
         }
         
         TutoringRequest request = requestOpt.get();
-        if (request.getRequestStatus() != RequestStatus.Aprobada) {
+        if (request.getRequestStatus() != RequestStatus.Conversando) {
             log.error("La solicitud de tutoría con ID: {} no está en estado Aprobada", tutoringRequestId);
             throw new IllegalArgumentException("Solo se pueden crear tutorías a partir de solicitudes en estado Aprobada");
         }
