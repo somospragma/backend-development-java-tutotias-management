@@ -36,7 +36,7 @@ class UserControllerGetAllUsersTest {
         User adminUser = new User();
         adminUser.setId("admin-id");
         adminUser.setEmail("admin@test.com");
-        adminUser.setRol(RolUsuario.ADMINISTRADOR);
+        adminUser.setRol(RolUsuario.Administrador);
         UserContext.setCurrentUser(adminUser);
     }
 
@@ -50,7 +50,7 @@ class UserControllerGetAllUsersTest {
         user1.setFirstName("John");
         user1.setLastName("Doe");
         user1.setEmail("john@test.com");
-        user1.setRol(RolUsuario.TUTOR);
+        user1.setRol(RolUsuario.Tutor);
         user1.setChapter(chapterDto);
         user1.setTutoringsAsTutor(3L);
         user1.setTutoringsAsTutee(1L);
@@ -60,7 +60,7 @@ class UserControllerGetAllUsersTest {
         user2.setFirstName("Jane");
         user2.setLastName("Smith");
         user2.setEmail("jane@test.com");
-        user2.setRol(RolUsuario.TUTORADO);
+        user2.setRol(RolUsuario.Tutorado);
         user2.setChapter(chapterDto);
         user2.setTutoringsAsTutor(0L);
         user2.setTutoringsAsTutee(2L);

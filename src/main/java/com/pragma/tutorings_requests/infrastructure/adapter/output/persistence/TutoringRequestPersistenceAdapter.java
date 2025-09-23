@@ -85,4 +85,9 @@ public class TutoringRequestPersistenceAdapter implements TutoringRequestReposit
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public void delete(String id) {
+        repository.deleteById(id);
+    }
 }
