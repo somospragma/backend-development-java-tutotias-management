@@ -11,4 +11,6 @@ public interface TutoringRepository {
     List<Tutoring> findByTutorId(String tutorId);
     List<Tutoring> findByTuteeId(String tuteeId);
     Long countActiveTutoringByTutorId(String tutorId);
+    Long countTutoringsByTutorId(String tutorId);
+    Long countTutoringsByTuteeId(String tuteeId);
 }

@@ -7,6 +7,7 @@ import com.pragma.usuarios.domain.model.User;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.CreateUserDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UpdateUserRequestDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserDto;
+import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserWithTutoringCountDto;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,6 +35,10 @@ public abstract class UserDtoMapper {
     public abstract User toModel(UpdateUserRequestDto dto);
     
     public abstract UserDto toDto(User user);
+    
+    @Mapping(target = "tutoringsAsTutor", ignore = true)
+    @Mapping(target = "tutoringsAsTutee", ignore = true)
+    public abstract UserWithTutoringCountDto toUserWithTutoringCountDto(User user);
 
     @AfterMapping
     protected void findAndSetChapter(CreateUserDto dto, @MappingTarget User user) {
