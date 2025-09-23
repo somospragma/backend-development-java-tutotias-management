@@ -9,4 +9,5 @@ public interface ChapterRepository {
     Chapter save(Chapter chapter);
     List<Chapter> findAll();
     Optional<Chapter> findById(String id);
+    Optional<Chapter> findByName(String name);
 }

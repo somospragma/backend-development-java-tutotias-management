@@ -6,10 +6,13 @@ import com.pragma.usuarios.domain.port.input.CreateUserUseCase;
 import com.pragma.usuarios.domain.port.input.FindUserByIdUseCase;
 import com.pragma.usuarios.domain.port.input.FindUserByGoogleIdUseCase;
 import com.pragma.usuarios.domain.port.input.GetAllUsersWithTutoringCountUseCase;
+import com.pragma.usuarios.domain.port.input.GetExternalUserUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateTutoringLimitUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateUserRoleUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateUserUseCase;
+import com.pragma.usuarios.domain.port.output.ExternalUserRepository;
 import com.pragma.usuarios.domain.port.output.UserRepository;
+import com.pragma.usuarios.infrastructure.adapter.output.external.dto.PragmaUserDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserWithTutoringCountDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.mapper.UserDtoMapper;
 import com.pragma.tutorings.domain.port.output.TutoringRepository;
@@ -22,11 +25,12 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserService implements CreateUserUseCase, UpdateUserUseCase, FindUserByIdUseCase, 
-        FindUserByGoogleIdUseCase, UpdateUserRoleUseCase, UpdateTutoringLimitUseCase, GetAllUsersWithTutoringCountUseCase {
+        FindUserByGoogleIdUseCase, UpdateUserRoleUseCase, UpdateTutoringLimitUseCase, GetAllUsersWithTutoringCountUseCase, GetExternalUserUseCase {
 
     private final UserRepository userRepository;
     private final TutoringRepository tutoringRepository;
     private final UserDtoMapper userDtoMapper;
+    private final ExternalUserRepository externalUserRepository;
 
     @Override
     public User createUser(User user) {
@@ -107,5 +111,10 @@ public class UserService implements CreateUserUseCase, UpdateUserUseCase, FindUs
                     return dto;
                 })
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    public Optional<PragmaUserDto> getExternalUserByEmail(String email) {
+        return externalUserRepository.findUserByEmail(email);
     }
 }

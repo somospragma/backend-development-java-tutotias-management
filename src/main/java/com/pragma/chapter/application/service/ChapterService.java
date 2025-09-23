@@ -35,4 +35,9 @@ public class ChapterService implements CreateChapterUseCase, GetAllChaptersUseCa
     public Optional<Chapter> findChapterById(String id) {
         return chapterRepository.findById(id);
     }
+    
+    @Override
+    public Optional<Chapter> findChapterByName(String name) {
+        return chapterRepository.findByName(name);
+    }
 }

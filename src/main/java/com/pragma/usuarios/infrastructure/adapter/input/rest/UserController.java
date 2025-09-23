@@ -7,9 +7,11 @@ import com.pragma.usuarios.domain.model.enums.RolUsuario;
 import com.pragma.usuarios.domain.port.input.CreateUserUseCase;
 import com.pragma.usuarios.domain.port.input.FindUserByIdUseCase;
 import com.pragma.usuarios.domain.port.input.GetAllUsersWithTutoringCountUseCase;
+import com.pragma.usuarios.domain.port.input.GetExternalUserUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateTutoringLimitUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateUserRoleUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateUserUseCase;
+import com.pragma.usuarios.infrastructure.adapter.output.external.dto.PragmaUserDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.CreateUserDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UpdateTutoringLimitDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UpdateUserRequestDto;
@@ -38,16 +40,18 @@ public class UserController {
     private final UpdateUserRoleUseCase updateUserRoleUseCase;
     private final UpdateTutoringLimitUseCase updateTutoringLimitUseCase;
     private final GetAllUsersWithTutoringCountUseCase getAllUsersWithTutoringCountUseCase;
+    private final GetExternalUserUseCase getExternalUserUseCase;
     private final UserDtoMapper userDtoMapper;
 
     @PostMapping
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
-        // Only admins can create users - check this BEFORE validation
-        UserContextHelper.requireAdminRole();
-        
         log.info("Creating new user: {}", createUserDto.getEmail());
         
-        User user = userDtoMapper.toModel(createUserDto);
+        // Get external user data to complete user information
+        PragmaUserDto externalUser = getExternalUserUseCase.getExternalUserByEmail(createUserDto.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuario no permitido: no existe en la API externa"));
+        
+        User user = userDtoMapper.toModelFromExternal(createUserDto, externalUser);
         User createdUser = createUserUseCase.createUser(user);
         log.info("Successfully created user with ID: {}", createdUser.getId());
         return new ResponseEntity<>(userDtoMapper.toDto(createdUser), HttpStatus.CREATED);

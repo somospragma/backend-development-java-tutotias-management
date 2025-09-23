@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface FindChapterUseCase {
     Optional<Chapter> findChapterById(String id);
+    Optional<Chapter> findChapterByName(String name);
 }
