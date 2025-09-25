@@ -75,7 +75,7 @@ class TutoringServiceTest {
         tutoringRequest.setSkills(skills);
         tutoringRequest.setNeedsDescription("Necesito ayuda con Java y Spring");
         tutoringRequest.setRequestDate(new Date());
-        tutoringRequest.setRequestStatus(RequestStatus.Aprobada);
+        tutoringRequest.setRequestStatus(RequestStatus.Conversando);
 
         tutoring = new Tutoring();
         tutoring.setId("tutoring-id");
@@ -171,7 +171,7 @@ class TutoringServiceTest {
             tutoringService.createTutoring("request-id", "tutor-id", "Objetivos de prueba");
         });
 
-        assertEquals("Solo se pueden crear tutorías a partir de solicitudes en estado Aprobada", exception.getMessage());
+        assertEquals("Solo se pueden crear tutorías a partir de solicitudes en estado Conversando", exception.getMessage());
         verify(tutoringRepository, never()).save(any(Tutoring.class));
     }
 

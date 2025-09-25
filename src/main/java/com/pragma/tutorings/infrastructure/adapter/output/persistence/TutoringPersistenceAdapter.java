@@ -61,4 +61,14 @@ public class TutoringPersistenceAdapter implements TutoringRepository {
     public Long countActiveTutoringByTutorId(String tutorId) {
         return tutoringRepository.countByTutorIdAndStatus(tutorId, TutoringStatus.Activa);
     }
+
+    @Override
+    public Long countTutoringsByTutorId(String tutorId) {
+        return tutoringRepository.countByTutorId(tutorId);
+    }
+
+    @Override
+    public Long countTutoringsByTuteeId(String tuteeId) {
+        return tutoringRepository.countByTuteeId(tuteeId);
+    }
 }

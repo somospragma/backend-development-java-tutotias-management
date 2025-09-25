@@ -51,6 +51,7 @@ public class TutoringStatusService implements CompleteTutoringUseCase, CancelTut
         // Actualizar el estado y el acta final de la tutoría
         tutoring.setStatus(TutoringStatus.Completada);
         tutoring.setFinalActUrl(finalActUrl);
+        tutoring.setUpdatedAt(new Date());
         
         // Guardar y retornar la tutoría actualizada
         Tutoring updatedTutoring = tutoringRepository.save(tutoring);
@@ -78,6 +79,7 @@ public class TutoringStatusService implements CompleteTutoringUseCase, CancelTut
         
         // Actualizar el estado de la tutoría a "En Cancelación"
         tutoring.setStatus(TutoringStatus.EnCancelacion);
+        tutoring.setUpdatedAt(new Date());
         
         // Guardar y retornar la tutoría actualizada
         Tutoring updatedTutoring = tutoringRepository.save(tutoring);
@@ -105,6 +107,7 @@ public class TutoringStatusService implements CompleteTutoringUseCase, CancelTut
         
         // Actualizar el estado de la tutoría
         tutoring.setStatus(TutoringStatus.Cancelada);
+        tutoring.setUpdatedAt(new Date());
         
         // Guardar y retornar la tutoría actualizada
         Tutoring updatedTutoring = tutoringRepository.save(tutoring);

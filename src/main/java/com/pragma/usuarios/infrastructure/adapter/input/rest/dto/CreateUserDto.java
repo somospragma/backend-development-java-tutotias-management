@@ -10,21 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateUserDto {
-    @NotBlank(message = "First name is required")
-    private String firstName;
-    
-    @NotBlank(message = "Last name is required")
-    private String lastName;
-    
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
     
     @NotBlank(message = "Google User ID is required")
     private String googleUserId;
-    
-    @NotBlank(message = "Chapter ID is required")
-    private String chapterId;
-    
-    private int seniority;
 }

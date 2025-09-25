@@ -46,6 +46,12 @@ public class GoogleAuthInterceptor implements HandlerInterceptor {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
+        
+        // Skip authentication for POST /api/v1/users (user creation)
+        if ("POST".equalsIgnoreCase(request.getMethod()) && 
+            "/api/v1/users".equals(request.getRequestURI())) {
+            return true;
+        }
 
         String clientIp = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");

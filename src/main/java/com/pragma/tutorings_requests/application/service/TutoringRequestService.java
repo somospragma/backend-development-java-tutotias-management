@@ -36,6 +36,10 @@ public class TutoringRequestService implements
             // Establecer el estado por defecto como Pendiente
             tutoringRequest.setRequestStatus(RequestStatus.Pendiente);
             
+            // Establecer fechas de creación y actualización
+            tutoringRequest.setCreatedAt(new Date());
+            tutoringRequest.setUpdatedAt(new Date());
+            
             TutoringRequest savedRequest = tutoringRequestRepository.save(tutoringRequest);
             log.info("Solicitud de tutoría guardada exitosamente con ID: {}", savedRequest.getId());
             
@@ -61,10 +65,23 @@ public class TutoringRequestService implements
             // Validar transición de estado
             validateStatusTransition(tutoringRequest.getRequestStatus(), newStatus);
             
-            // Actualizar el estado
-            tutoringRequest.setRequestStatus(newStatus);
+            // Si se cancela una solicitud sin tutoría asignada, eliminarla completamente
+            if (newStatus == RequestStatus.Cancelada && 
+                (tutoringRequest.getAssignedTutoringId() == null || tutoringRequest.getAssignedTutoringId().isEmpty())) {
+                
+                log.info("Eliminando solicitud de tutoría cancelada sin tutoría asignada con ID: {}", requestId);
+                tutoringRequestRepository.delete(requestId);
+                log.info("Solicitud de tutoría eliminada completamente del sistema");
+                
+                // Retornar la solicitud con estado cancelado para indicar que fue procesada
+                tutoringRequest.setRequestStatus(RequestStatus.Cancelada);
+                return tutoringRequest;
+            }
             
-            // Guardar los cambios
+            // Para otros casos, actualizar el estado normalmente
+            tutoringRequest.setRequestStatus(newStatus);
+            tutoringRequest.setUpdatedAt(new Date());
+            
             TutoringRequest updatedRequest = tutoringRequestRepository.save(tutoringRequest);
             log.info("Estado de solicitud de tutoría actualizado exitosamente a: {}", newStatus);
             

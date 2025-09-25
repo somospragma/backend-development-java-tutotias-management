@@ -128,9 +128,29 @@ class TutoringRequestServiceTest {
     }
 
     @Test
-    void updateStatus_ToCanceled_Success() {
+    void updateStatus_ToCanceled_WithoutAssignedTutoring_DeletesRequest() {
         // Arrange
         UserContext.setCurrentUser(adminUser);
+        tutoringRequest.setAssignedTutoringId(null); // Sin tutoría asignada
+        when(tutoringRequestRepository.findById(requestId)).thenReturn(Optional.of(tutoringRequest));
+        doNothing().when(tutoringRequestRepository).delete(requestId);
+
+        // Act
+        TutoringRequest result = tutoringRequestService.updateStatus(requestId, RequestStatus.Cancelada);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(RequestStatus.Cancelada, result.getRequestStatus());
+        verify(tutoringRequestRepository, times(1)).findById(requestId);
+        verify(tutoringRequestRepository, times(1)).delete(requestId);
+        verify(tutoringRequestRepository, never()).save(any(TutoringRequest.class));
+    }
+
+    @Test
+    void updateStatus_ToCanceled_WithAssignedTutoring_UpdatesStatus() {
+        // Arrange
+        UserContext.setCurrentUser(adminUser);
+        tutoringRequest.setAssignedTutoringId("tutoring-123"); // Con tutoría asignada
         when(tutoringRequestRepository.findById(requestId)).thenReturn(Optional.of(tutoringRequest));
         when(tutoringRequestRepository.save(any(TutoringRequest.class))).thenAnswer(invocation -> {
             TutoringRequest savedRequest = invocation.getArgument(0);
@@ -146,6 +166,26 @@ class TutoringRequestServiceTest {
         assertEquals(RequestStatus.Cancelada, result.getRequestStatus());
         verify(tutoringRequestRepository, times(1)).findById(requestId);
         verify(tutoringRequestRepository, times(1)).save(any(TutoringRequest.class));
+        verify(tutoringRequestRepository, never()).delete(anyString());
+    }
+
+    @Test
+    void updateStatus_ToCanceled_WithEmptyAssignedTutoring_DeletesRequest() {
+        // Arrange
+        UserContext.setCurrentUser(adminUser);
+        tutoringRequest.setAssignedTutoringId(""); // String vacío
+        when(tutoringRequestRepository.findById(requestId)).thenReturn(Optional.of(tutoringRequest));
+        doNothing().when(tutoringRequestRepository).delete(requestId);
+
+        // Act
+        TutoringRequest result = tutoringRequestService.updateStatus(requestId, RequestStatus.Cancelada);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(RequestStatus.Cancelada, result.getRequestStatus());
+        verify(tutoringRequestRepository, times(1)).findById(requestId);
+        verify(tutoringRequestRepository, times(1)).delete(requestId);
+        verify(tutoringRequestRepository, never()).save(any(TutoringRequest.class));
     }
 
     @Test

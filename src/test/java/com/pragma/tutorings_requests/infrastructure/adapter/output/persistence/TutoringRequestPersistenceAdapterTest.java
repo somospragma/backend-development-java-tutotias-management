@@ -128,4 +128,17 @@ class TutoringRequestPersistenceAdapterTest {
         verify(mapper, times(1)).toDomain(entity1);
         verify(mapper, times(1)).toDomain(entity2);
     }
+    
+    @Test
+    void delete_ShouldCallRepositoryDeleteById() {
+        // Arrange
+        String requestId = "request-id";
+        doNothing().when(repository).deleteById(requestId);
+
+        // Act
+        adapter.delete(requestId);
+
+        // Assert
+        verify(repository, times(1)).deleteById(requestId);
+    }
 }

@@ -52,6 +52,8 @@ public class TutoringService implements CreateTutoringUseCase {
         tutoring.setExpectedEndDate(calculateExpectedEndDate());
         tutoring.setStatus(TutoringStatus.Activa);
         tutoring.setObjectives(objectives);
+        tutoring.setCreatedAt(new Date());
+        tutoring.setUpdatedAt(new Date());
         
         // Copiar las habilidades de la solicitud
         List<Skill> skills = new ArrayList<>(tutoringRequest.getSkills());
@@ -96,9 +98,9 @@ public class TutoringService implements CreateTutoringUseCase {
         }
         
         TutoringRequest request = requestOpt.get();
-        if (request.getRequestStatus() != RequestStatus.Aprobada) {
-            log.error("La solicitud de tutoría con ID: {} no está en estado Aprobada", tutoringRequestId);
-            throw new IllegalArgumentException("Solo se pueden crear tutorías a partir de solicitudes en estado Aprobada");
+        if (request.getRequestStatus() != RequestStatus.Conversando) {
+            log.error("La solicitud de tutoría con ID: {} no está en estado Conversando", tutoringRequestId);
+            throw new IllegalArgumentException("Solo se pueden crear tutorías a partir de solicitudes en estado Conversando");
         }
         
         return request;

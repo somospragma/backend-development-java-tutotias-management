@@ -6,14 +6,18 @@ import com.pragma.usuarios.domain.model.User;
 import com.pragma.usuarios.domain.model.enums.RolUsuario;
 import com.pragma.usuarios.domain.port.input.CreateUserUseCase;
 import com.pragma.usuarios.domain.port.input.FindUserByIdUseCase;
+import com.pragma.usuarios.domain.port.input.GetAllUsersWithTutoringCountUseCase;
+import com.pragma.usuarios.domain.port.input.GetExternalUserUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateTutoringLimitUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateUserRoleUseCase;
 import com.pragma.usuarios.domain.port.input.UpdateUserUseCase;
+import com.pragma.usuarios.infrastructure.adapter.output.external.dto.PragmaUserDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.CreateUserDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UpdateTutoringLimitDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UpdateUserRequestDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UpdateUserRoleDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserDto;
+import com.pragma.usuarios.infrastructure.adapter.input.rest.dto.UserWithTutoringCountDto;
 import com.pragma.usuarios.infrastructure.adapter.input.rest.mapper.UserDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -33,16 +39,19 @@ public class UserController {
     private final FindUserByIdUseCase findUserByIdUseCase;
     private final UpdateUserRoleUseCase updateUserRoleUseCase;
     private final UpdateTutoringLimitUseCase updateTutoringLimitUseCase;
+    private final GetAllUsersWithTutoringCountUseCase getAllUsersWithTutoringCountUseCase;
+    private final GetExternalUserUseCase getExternalUserUseCase;
     private final UserDtoMapper userDtoMapper;
 
     @PostMapping
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
-        // Only admins can create users - check this BEFORE validation
-        UserContextHelper.requireAdminRole();
-        
         log.info("Creating new user: {}", createUserDto.getEmail());
         
-        User user = userDtoMapper.toModel(createUserDto);
+        // Get external user data to complete user information
+        PragmaUserDto externalUser = getExternalUserUseCase.getExternalUserByEmail(createUserDto.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuario no permitido: no existe en la API externa"));
+        
+        User user = userDtoMapper.toModelFromExternal(createUserDto, externalUser);
         User createdUser = createUserUseCase.createUser(user);
         log.info("Successfully created user with ID: {}", createdUser.getId());
         return new ResponseEntity<>(userDtoMapper.toDto(createdUser), HttpStatus.CREATED);
@@ -115,5 +124,19 @@ public class UserController {
                     return ResponseEntity.ok(userDtoMapper.toDto(updatedUser));
                 })
                 .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
+    }
+    
+    @GetMapping
+    public ResponseEntity<List<UserWithTutoringCountDto>> getAllUsersWithTutoringCount() {
+        log.info("Admin {} requesting all users with tutoring count", UserContextHelper.getCurrentUserEmail());
+        
+        // Only admins can access this endpoint
+        UserContextHelper.requireAdminRole();
+        
+        List<UserWithTutoringCountDto> users = getAllUsersWithTutoringCountUseCase.getAllUsersWithTutoringCount();
+        log.info("Admin {} successfully retrieved {} users with tutoring count", 
+                UserContextHelper.getCurrentUserEmail(), users.size());
+        
+        return ResponseEntity.ok(users);
     }
 }

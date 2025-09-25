@@ -17,4 +17,10 @@ public interface SpringDataTutoringRepository extends JpaRepository<TutoringEnti
 
     @Query("SELECT COUNT(t) FROM TutoringEntity t WHERE t.tutorId.id = :tutorId AND t.status = :status")
     Long countByTutorIdAndStatus(@Param("tutorId") String tutorId, @Param("status") TutoringStatus status);
+    
+    @Query("SELECT COUNT(t) FROM TutoringEntity t WHERE t.tutorId.id = :tutorId")
+    Long countByTutorId(@Param("tutorId") String tutorId);
+    
+    @Query("SELECT COUNT(t) FROM TutoringEntity t WHERE t.tuteeId.id = :tuteeId")
+    Long countByTuteeId(@Param("tuteeId") String tuteeId);
 }

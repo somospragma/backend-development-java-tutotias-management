@@ -356,11 +356,11 @@ class TutoringStatusServiceTest {
         when(findUserByIdUseCase.findUserById("tutor-id")).thenReturn(Optional.of(tutor));
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
             tutoringStatusService.cancelTutoring("tutoring-id", "tutor-id", "Comentario de cancelación");
         });
 
-        assertEquals("Solo los administradores pueden cancelar tutorías", exception.getMessage());
+        assertEquals("No se puede cancelar la tutoría porque no está en estado EnCancelacion", exception.getMessage());
         verify(tutoringRepository, never()).save(any(Tutoring.class));
     }
 

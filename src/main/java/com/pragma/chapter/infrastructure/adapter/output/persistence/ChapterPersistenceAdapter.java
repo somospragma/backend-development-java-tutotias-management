@@ -42,4 +42,10 @@ public class ChapterPersistenceAdapter implements ChapterRepository {
         return chapterRepository.findById(id)
                 .map(chapterMapper::toDomain);
     }
+    
+    @Override
+    public Optional<Chapter> findByName(String name) {
+        return chapterRepository.findByName(name)
+                .map(chapterMapper::toDomain);
+    }
 }
