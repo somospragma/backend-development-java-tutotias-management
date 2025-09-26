@@ -71,4 +71,10 @@ public class TutoringPersistenceAdapter implements TutoringRepository {
     public Long countTutoringsByTuteeId(String tuteeId) {
         return tutoringRepository.countByTuteeId(tuteeId);
     }
+
+    @Override
+    public List<Tutoring> findAll() {
+        List<TutoringEntity> entities = tutoringRepository.findAll();
+        return tutoringMapper.toDomainList(entities);
+    }
 }

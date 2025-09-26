@@ -23,4 +23,9 @@ public class GetTutoringsService implements GetTutoringsUseCase {
     public List<Tutoring> getTutoringsByTuteeId(String tuteeId) {
         return tutoringRepository.findByTuteeId(tuteeId);
     }
+
+    @Override
+    public List<Tutoring> getAllTutorings() {
+        return tutoringRepository.findAll();
+    }
 }

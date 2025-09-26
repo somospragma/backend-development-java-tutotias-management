@@ -2,10 +2,12 @@ package com.pragma.tutorings.infrastructure.adapter.input.rest;
 
 import com.pragma.shared.context.UserContextHelper;
 import com.pragma.shared.dto.OkResponseDto;
+import com.pragma.shared.service.MessageService;
 import com.pragma.tutorings.domain.model.Tutoring;
 import com.pragma.tutorings.domain.port.input.CancelTutoringUseCase;
 import com.pragma.tutorings.domain.port.input.CompleteTutoringUseCase;
 import com.pragma.tutorings.domain.port.input.CreateTutoringUseCase;
+import com.pragma.tutorings.domain.port.input.GetTutoringsUseCase;
 import com.pragma.tutorings.domain.port.input.RequestCancellationUseCase;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CompleteTutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CreateTutoringDto;
@@ -22,6 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/tutorings")
 @RequiredArgsConstructor
@@ -32,7 +36,9 @@ public class TutoringController {
     private final CompleteTutoringUseCase completeTutoringUseCase;
     private final CancelTutoringUseCase cancelTutoringUseCase;
     private final RequestCancellationUseCase requestCancellationUseCase;
+    private final GetTutoringsUseCase getTutoringsUseCase;
     private final TutoringDtoMapper tutoringDtoMapper;
+    private final MessageService messageService;
 
     @PostMapping
     public ResponseEntity<OkResponseDto<TutoringDto>> createTutoring(@Valid @RequestBody CreateTutoringDto createTutoringDto) {
@@ -130,6 +136,26 @@ public class TutoringController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(OkResponseDto.of("Solicitud de cancelación enviada exitosamente", tutoringDto));
+        }
+    }
+    
+    @GetMapping
+    public ResponseEntity<OkResponseDto<List<TutoringDto>>> getAllTutorings() {
+        try {
+            User currentUser = UserContextHelper.getCurrentUserOrThrow();
+            log.info("User {} retrieving all tutorings", currentUser.getEmail());
+            
+            List<Tutoring> tutorings = getTutoringsUseCase.getAllTutorings();
+            List<TutoringDto> tutoringDtos = tutoringDtoMapper.toDtoList(tutorings);
+            
+            log.info("User {} retrieved {} tutorings", currentUser.getEmail(), tutoringDtos.size());
+            
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(OkResponseDto.of(messageService.getMessage("general.success"), tutoringDtos));
+        } catch (Exception e) {
+            log.error("Error retrieving tutorings", e);
+            throw e;
         }
     }
 }
