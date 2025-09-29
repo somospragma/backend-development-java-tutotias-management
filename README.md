@@ -200,6 +200,12 @@ Gestiona la información de los usuarios del sistema, que pueden tener diferente
 - **Tutorado**: Puede solicitar tutorías en habilidades que desea desarrollar.
 - **Administrador**: Gestiona el sistema.
 
+**Nuevas funcionalidades:**
+- **Integración con API Externa (CRECI)**: Validación automática de usuarios contra sistema externo
+- **Filtros Avanzados**: Búsqueda por capítulo, rol, seniority y email con operadores OR
+- **Gestión de Límites de Tutoría**: Configuración dinámica del límite de tutorías activas por usuario
+- **Perfil de Usuario**: Endpoint `/me` para obtener información del usuario autenticado
+
 ### 2. Habilidades (Skills)
 
 Representa las competencias o conocimientos que pueden ser objeto de tutoría.
@@ -215,6 +221,11 @@ Gestiona las peticiones de tutoría realizadas por los tutorados, con estados:
 - **Aprobada**: La solicitud ha sido aprobada pero aún no asignada a un tutor.
 - **Asignada**: Se ha asignado un tutor y se ha creado una tutoría.
 - **Rechazada**: La solicitud ha sido rechazada.
+- **Conversando**: Estado intermedio cuando se está negociando la tutoría.
+
+**Mejoras implementadas:**
+- **Eliminación Automática**: Las solicitudes sin tutoría asignada se eliminan al cancelarse
+- **Filtros Mejorados**: Búsqueda por múltiples criterios simultáneos
 
 ### 5. Tutorías (Tutorings)
 
@@ -222,6 +233,13 @@ Representa las tutorías activas entre un tutor y un tutorado, con estados:
 - **Activa**: La tutoría está en curso.
 - **Completada**: La tutoría ha finalizado satisfactoriamente.
 - **Cancelada**: La tutoría ha sido cancelada.
+- **Solicitud_Cancelacion**: Estado cuando se ha solicitado cancelación pero no aprobada.
+
+**Nuevas funcionalidades:**
+- **Vista Detallada**: Endpoint `/api/v1/tutorings/{id}/details` con información completa
+- **Filtros por Participante**: Búsqueda por ID de tutor o tutorado
+- **Gestión de Cancelaciones**: Diferenciación entre solicitud y aprobación de cancelación
+- **URL de Acta Final**: Campo para almacenar el enlace al documento final
 
 ### 6. Sesiones de Tutoría (Tutoring Sessions)
 
@@ -230,9 +248,17 @@ Gestiona las sesiones individuales dentro de una tutoría, con estados:
 - **Realizada**: La sesión se ha llevado a cabo.
 - **Cancelada**: La sesión ha sido cancelada.
 
+**Mejoras:**
+- **Integración con Vista Detallada**: Las sesiones se incluyen automáticamente en el detalle de tutorías
+- **Servicios de Consulta**: Nuevos servicios para obtener sesiones por tutoría
+
 ### 7. Retroalimentación (Feedbacks)
 
 Permite a los usuarios proporcionar evaluaciones y comentarios sobre las tutorías.
+
+**Mejoras de Seguridad:**
+- **Evaluador Automático**: El evaluador se asigna automáticamente desde el contexto de usuario autenticado
+- **Integración con Vista Detallada**: Los feedbacks se incluyen en el detalle completo de tutorías
 
 ### 8. Estadísticas (Statistics)
 
@@ -347,17 +373,47 @@ La API utiliza autenticación basada en Google User ID enviado en el header `Aut
 ### Endpoints Principales
 
 **Endpoints Autenticados (requieren Google ID en header Authorization):**
+
 - **Usuarios**: `/api/v1/users`
+  - `GET /api/v1/users` - Listar usuarios con filtros (chapterId, rol, seniority, email)
+  - `GET /api/v1/users/me` - Obtener perfil del usuario autenticado
+  - `GET /api/v1/users/{id}` - Obtener usuario por ID
+  - `POST /api/v1/users` - Crear usuario (con validación externa)
+  - `PUT /api/v1/users` - Actualizar usuario
+  - `PATCH /api/v1/users/role` - Actualizar rol de usuario (solo admin)
+  - `PATCH /api/v1/users/tutoring-limit` - Actualizar límite de tutorías (solo admin)
+
 - **Habilidades**: `/api/v1/skills`
+  - CRUD completo de habilidades
+
 - **Capítulos**: `/api/chapter`
+  - Gestión de capítulos/departamentos
+
 - **Solicitudes de Tutoría**: `/api/v1/tutoring-requests`
+  - Gestión completa con filtros avanzados
+  - Eliminación automática de solicitudes canceladas sin tutoría
+
 - **Tutorías**: `/api/v1/tutorings`
+  - `GET /api/v1/tutorings` - Listar tutorías con filtros por tutor/tutorado
+  - `GET /api/v1/tutorings/{id}/details` - **NUEVO**: Vista detallada con sesiones y feedbacks
+  - `POST /api/v1/tutorings` - Crear tutoría
+  - `PATCH /api/v1/tutorings/{id}/complete` - Completar tutoría
+  - `PATCH /api/v1/tutorings/{id}/cancel` - Cancelar/solicitar cancelación
+
 - **Sesiones de Tutoría**: `/api/v1/tutoring-sessions`
+  - Gestión de sesiones individuales
+  - Integración con vista detallada de tutorías
+
 - **Retroalimentación**: `/api/v1/feedbacks`
+  - `POST /api/v1/feedbacks` - Crear feedback (evaluador automático)
+  - Integración con vista detallada de tutorías
+
 - **Estadísticas**: `/api/v1/statistics`
+  - Dashboards y métricas del sistema
 
 **Endpoints Públicos (sin autenticación):**
 - **Monitoreo**: `/actuator/health`
+- **Perfil**: `/api/profile` - Información del perfil activo
 
 ## Pruebas y Calidad de Código
 
@@ -394,7 +450,10 @@ El reporte se genera en `target/site/jacoco/index.html`
 - **MapStruct 1.5.5**: Mapeo entre objetos
 - **Spring Boot Validation**: Validación de datos
 - **Spring Boot Actuator**: Monitoreo y métricas
+- **Spring Web**: Cliente REST para integraciones externas
+- **RestTemplate**: Comunicación con APIs externas (CRECI)
 - **JUnit 5**: Pruebas unitarias
+- **Mockito**: Mocking para pruebas
 - **JaCoCo**: Cobertura de código
 - **Docker**: Contenerización
 - **OpenAPI 3.0**: Documentación de API
@@ -424,6 +483,19 @@ El reporte se genera en `target/site/jacoco/index.html`
 - Context de usuario para operaciones autenticadas
 - Configuración flexible de rutas protegidas
 - Middleware de identificación de usuarios basado en Google ID
+- **UserContextHelper**: Utilidades para validación de permisos y acceso a recursos
+- **Asignación Automática**: Evaluadores y usuarios se asignan automáticamente desde el contexto
+
+### Integraciones Externas
+- **API CRECI**: Validación de usuarios contra sistema externo
+- **RestTemplate**: Cliente HTTP configurado para comunicaciones externas
+- **Manejo de Errores**: Gestión robusta de fallos en integraciones externas
+
+### Nuevas Funcionalidades de Negocio
+- **Vista Detallada de Tutorías**: Información completa con sesiones y feedbacks
+- **Filtros Avanzados**: Búsqueda con operadores OR en múltiples campos
+- **Gestión de Estados**: Nuevos estados para solicitudes y tutorías
+- **Eliminación Inteligente**: Limpieza automática de solicitudes huérfanas
 
 ### Monitoreo
 - Spring Boot Actuator habilitado
