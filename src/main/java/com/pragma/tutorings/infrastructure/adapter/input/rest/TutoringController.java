@@ -12,9 +12,15 @@ import com.pragma.tutorings.domain.port.input.RequestCancellationUseCase;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CompleteTutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.CreateTutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.RequestCancellationDto;
+import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.TutoringDetailDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.TutoringDto;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.dto.UpdateTutoringStatusDto;
+import com.pragma.tutorings.infrastructure.adapter.input.rest.mapper.TutoringDetailDtoMapper;
 import com.pragma.tutorings.infrastructure.adapter.input.rest.mapper.TutoringDtoMapper;
+import com.pragma.feedbacks.domain.port.input.GetFeedbacksUseCase;
+import com.pragma.tutoring_sessions.domain.port.input.GetTutoringSessionsUseCase;
+import com.pragma.feedbacks.domain.model.Feedback;
+import com.pragma.tutoring_sessions.domain.model.TutoringSession;
 import com.pragma.usuarios.domain.model.User;
 import com.pragma.usuarios.domain.model.enums.RolUsuario;
 import jakarta.validation.Valid;
@@ -37,7 +43,10 @@ public class TutoringController {
     private final CancelTutoringUseCase cancelTutoringUseCase;
     private final RequestCancellationUseCase requestCancellationUseCase;
     private final GetTutoringsUseCase getTutoringsUseCase;
+    private final GetFeedbacksUseCase getFeedbacksUseCase;
+    private final GetTutoringSessionsUseCase getTutoringSessionsUseCase;
     private final TutoringDtoMapper tutoringDtoMapper;
+    private final TutoringDetailDtoMapper tutoringDetailDtoMapper;
     private final MessageService messageService;
 
     @PostMapping
@@ -157,5 +166,24 @@ public class TutoringController {
             log.error("Error retrieving tutorings", e);
             throw e;
         }
+    }
+
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<OkResponseDto<TutoringDetailDto>> getTutoringDetail(@PathVariable String id) {
+        User currentUser = UserContextHelper.getCurrentUserOrThrow();
+        log.info("User {} retrieving tutoring detail for ID: {}", currentUser.getEmail(), id);
+        
+        Tutoring tutoring = getTutoringsUseCase.getTutoringById(id);
+        List<TutoringSession> sessions = getTutoringSessionsUseCase.getSessionsByTutoringId(id);
+        List<Feedback> feedbacks = getFeedbacksUseCase.getFeedbacksByTutoringId(id);
+        
+        TutoringDetailDto detailDto = tutoringDetailDtoMapper.toDetailDto(tutoring, sessions, feedbacks);
+        
+        log.info("User {} retrieved tutoring detail with {} sessions and {} feedbacks", 
+                currentUser.getEmail(), sessions.size(), feedbacks.size());
+        
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(OkResponseDto.of("Detalle de tutoría obtenido exitosamente", detailDto));
     }
 }

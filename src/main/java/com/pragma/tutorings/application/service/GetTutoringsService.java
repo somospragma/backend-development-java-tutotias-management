@@ -28,4 +28,10 @@ public class GetTutoringsService implements GetTutoringsUseCase {
     public List<Tutoring> getAllTutorings() {
         return tutoringRepository.findAll();
     }
+
+    @Override
+    public Tutoring getTutoringById(String id) {
+        return tutoringRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tutoring not found with id: " + id));
+    }
 }

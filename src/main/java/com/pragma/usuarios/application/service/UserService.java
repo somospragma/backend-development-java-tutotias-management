@@ -114,6 +114,21 @@ public class UserService implements CreateUserUseCase, UpdateUserUseCase, FindUs
     }
 
     @Override
+    public List<UserWithTutoringCountDto> getAllUsersWithTutoringCountFiltered(String chapterId, String rol, Integer seniority, String email) {
+        return userRepository.findByFilters(chapterId, rol, seniority, email).stream()
+                .map(user -> {
+                    long tutorCount = tutoringRepository.countTutoringsByTutorId(user.getId());
+                    long tuteeCount = tutoringRepository.countTutoringsByTuteeId(user.getId());
+                    
+                    UserWithTutoringCountDto dto = userDtoMapper.toUserWithTutoringCountDto(user);
+                    dto.setTutoringsAsTutor(tutorCount);
+                    dto.setTutoringsAsTutee(tuteeCount);
+                    return dto;
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
     public Optional<PragmaUserDto> getExternalUserByEmail(String email) {
         return externalUserRepository.findUserByEmail(email);
     }

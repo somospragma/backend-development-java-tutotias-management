@@ -5,13 +5,16 @@ info:
     API REST para el Sistema de Tutorías que facilita la gestión de tutorías entre tutores y tutorados.
     
     El sistema está desarrollado con Spring Boot siguiendo la Arquitectura Hexagonal y permite:
-    - Gestión de usuarios (tutores, tutorados, administradores)
-    - Solicitudes de tutoría
-    - Asignación y gestión de tutorías
+    - Gestión de usuarios (tutores, tutorados, administradores) con integración externa
+    - Solicitudes de tutoría con estados avanzados (Conversando, Solicitud_Cancelacion)
+    - Asignación y gestión de tutorías con vista detallada
     - Programación de sesiones de tutoría
-    - Sistema de retroalimentación
+    - Sistema de retroalimentación con evaluador automático
     - Gestión de habilidades y capítulos
-  version: 1.0.0
+    - Filtros avanzados y búsquedas con operadores OR
+    - Autenticación basada en Google ID con contexto de usuario
+    - Vista detallada de tutorías con sesiones y feedbacks integrados
+  version: 2.0.0
   contact:
     name: Sistema de Tutorías
     email: support@sistematutorias.com
@@ -20,6 +23,8 @@ info:
 servers:
   - url: http://localhost:8080
     description: Servidor de desarrollo
+  - url: http://pragma-tutorias-dev-alb-tutorias-1944959947.us-east-1.elb.amazonaws.com:8080
+    description: Servidor de aws
 
 security:
   - GoogleAuth: []
@@ -90,6 +95,54 @@ paths:
                   value:
                     message: "User with this email already exists"
                     timestamp: "2024-01-15T10:30:00Z"
+    get:
+      tags:
+        - Users
+      summary: Obtener todos los usuarios con conteo de tutorías
+      description: |
+        Obtiene la lista de todos los usuarios con información de tutorías activas.
+        Incluye filtros avanzados con operadores OR para búsqueda flexible.
+        Solo disponible para administradores.
+      parameters:
+        - name: chapterId
+          in: query
+          schema:
+            type: string
+          description: ID del capítulo para filtrar
+        - name: rol
+          in: query
+          schema:
+            type: string
+          description: Rol del usuario (búsqueda parcial con LIKE)
+        - name: seniority
+          in: query
+          schema:
+            type: integer
+          description: Nivel de seniority para filtrar
+        - name: email
+          in: query
+          schema:
+            type: string
+          description: Email del usuario (búsqueda parcial)
+      responses:
+        '200':
+          description: Lista de usuarios obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseUserWithTutoringCountList'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Se requieren privilegios de administrador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
     put:
       tags:
         - Users
@@ -718,6 +771,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthenticationErrorDto'
+    get:
+      tags:
+        - Tutorings
+      summary: Obtener todas las tutorías
+      description: |
+        Obtiene la lista completa de todas las tutorías en el sistema.
+        Retorna información básica de cada tutoría incluyendo tutor, tutorado, 
+        habilidades, fechas y estado actual.
+      responses:
+        '200':
+          description: Lista de tutorías obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoringList'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
 
   /api/v1/tutorings/{tutoringId}/complete:
     patch:
@@ -798,6 +884,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+        '401':
+          description: No autorizado - Token de autenticación faltante o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '403':
+          description: Prohibido - Usuario no registrado en el sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationErrorDto'
+        '404':
+          description: Tutoría no encontrada
+
+  /api/v1/tutorings/{id}/details:
+    get:
+      tags:
+        - Tutorings
+      summary: Obtener vista detallada de tutoría
+      description: |
+        Obtiene información completa de una tutoría incluyendo:
+        - Datos básicos de la tutoría
+        - Lista de sesiones asociadas
+        - Feedbacks recibidos
+        - Información completa de tutor y tutorado
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la tutoría
+      responses:
+        '200':
+          description: Vista detallada obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponseTutoringDetail'
         '401':
           description: No autorizado - Token de autenticación faltante o inválido
           content:
@@ -905,13 +1031,21 @@ paths:
       tags:
         - Feedbacks
       summary: Crear retroalimentación
-      description: Crea una nueva retroalimentación para una tutoría
+      description: |
+        Crea una nueva retroalimentación para una tutoría.
+        
+        **Nota importante**: El evaluador se asigna automáticamente desde el contexto 
+        del usuario autenticado. No es necesario enviar `evaluatorId` en el body.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateFeedbackDto'
+            example:
+              tutoringId: "tutoring-123"
+              score: "5"
+              comments: "Excelente tutoría, muy útil para mi aprendizaje"
       responses:
         '201':
           description: Retroalimentación creada exitosamente
@@ -919,12 +1053,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OkResponseFeedback'
+              example:
+                message: "Feedback creado exitosamente"
+                data:
+                  id: "feedback-456"
+                  evaluator:
+                    id: "user-789"
+                    firstName: "María"
+                    lastName: "García"
+                    email: "maria.garcia@example.com"
+                  evaluationDate: "2024-01-15T14:30:00Z"
+                  tutoring:
+                    id: "tutoring-123"
+                    status: "COMPLETADA"
+                  score: "5"
+                  comments: "Excelente tutoría, muy útil para mi aprendizaje"
+                timestamp: "2024-01-15T14:30:00Z"
         '400':
           description: Datos de entrada inválidos
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                message: "Validation failed"
+                errors:
+                  tutoringId: "Tutoría no encontrada"
+                  score: "Score es requerido"
+                timestamp: "2024-01-15T14:30:00Z"
         '401':
           description: No autorizado - Token de autenticación faltante o inválido
           content:
@@ -937,6 +1093,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthenticationErrorDto'
+        '404':
+          description: Tutoría no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+              example:
+                message: "Tutoría no encontrada con ID: tutoring-123"
+                timestamp: "2024-01-15T14:30:00Z"
 
   # Profile endpoints (for testing and user context)
   /api/v1/profile/me:
@@ -1119,7 +1284,7 @@ components:
         **Ejemplo:** `Authorization: 1234567890123456789`
         
         **Nota:** En un entorno de producción, esto sería típicamente un JWT token.
-  
+
   schemas:
     # User schemas
     UserDto:
@@ -1483,14 +1648,10 @@ components:
     CreateFeedbackDto:
       type: object
       required:
-        - evaluatorId
         - tutoringId
         - score
         - comments
       properties:
-        evaluatorId:
-          type: string
-          description: ID del evaluador
         tutoringId:
           type: string
           description: ID de la tutoría
@@ -1500,6 +1661,9 @@ components:
         comments:
           type: string
           description: Comentarios
+      description: |
+        Nota: El evaluatorId se asigna automáticamente desde el contexto del usuario autenticado.
+        No es necesario enviarlo en el body de la petición.
 
     # Enums
     RolUsuario:
@@ -1514,10 +1678,17 @@ components:
       type: string
       enum:
         - ENVIADA
+        - CONVERSANDO
         - APROBADA
         - ASIGNADA
         - RECHAZADA
-      description: Estado de la solicitud de tutoría
+      description: |
+        Estado de la solicitud de tutoría:
+        - ENVIADA: Estado inicial de una solicitud
+        - CONVERSANDO: Estado intermedio durante negociación
+        - APROBADA: Solicitud aprobada pero sin tutor asignado
+        - ASIGNADA: Tutor asignado y tutoría creada
+        - RECHAZADA: Solicitud rechazada
 
     TutoringStatus:
       type: string
@@ -1525,7 +1696,13 @@ components:
         - ACTIVA
         - COMPLETADA
         - CANCELADA
-      description: Estado de la tutoría
+        - SOLICITUD_CANCELACION
+      description: |
+        Estado de la tutoría:
+        - ACTIVA: Tutoría en curso
+        - COMPLETADA: Tutoría finalizada exitosamente
+        - CANCELADA: Tutoría cancelada
+        - SOLICITUD_CANCELACION: Cancelación solicitada pero no aprobada
 
     TutoringsSessionStatus:
       type: string
@@ -1646,7 +1823,7 @@ components:
           type: string
           format: date-time
           description: Timestamp del error
-    
+
     AuthenticationErrorDto:
       type: object
       properties:
@@ -1930,3 +2107,129 @@ components:
         timestamp:
           type: string
           format: date-time
+
+    # New schemas for v2.0 features
+    TutoringDetailDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único de la tutoría
+        tutor:
+          $ref: '#/components/schemas/UserDto'
+        tutee:
+          $ref: '#/components/schemas/UserDto'
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillDto'
+        startDate:
+          type: string
+          format: date-time
+          description: Fecha de inicio
+        expectedEndDate:
+          type: string
+          format: date-time
+          description: Fecha esperada de finalización
+        status:
+          $ref: '#/components/schemas/TutoringStatus'
+        objectives:
+          type: string
+          description: Objetivos de la tutoría
+        finalActUrl:
+          type: string
+          description: URL del acta final de la tutoría
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TutoringSessionDto'
+          description: Lista de sesiones asociadas
+        feedbacks:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeedbackDto'
+          description: Lista de feedbacks recibidos
+
+    UserWithTutoringCountDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del usuario
+        firstName:
+          type: string
+          description: Nombre del usuario
+        lastName:
+          type: string
+          description: Apellido del usuario
+        email:
+          type: string
+          format: email
+          description: Correo electrónico del usuario
+        slackId:
+          type: string
+          description: ID de Slack del usuario
+        chapter:
+          $ref: '#/components/schemas/ChapterDto'
+        rol:
+          $ref: '#/components/schemas/RolUsuario'
+        activeTutoringLimit:
+          type: integer
+          description: Límite de tutorías activas
+        seniority:
+          type: integer
+          description: Nivel de seniority del usuario
+        activeTutoringCount:
+          type: integer
+          description: Número actual de tutorías activas
+
+    OkResponseTutoringDetail:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          $ref: '#/components/schemas/TutoringDetailDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseTutoringList:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TutoringDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+
+    OkResponseUserWithTutoringCountList:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje de respuesta
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserWithTutoringCountDto'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta

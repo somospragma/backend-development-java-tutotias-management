@@ -50,4 +50,11 @@ public class UserPersistenceAdapter implements UserRepository {
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<User> findByFilters(String chapterId, String rol, Integer seniority, String email) {
+        return repository.findByFilters(chapterId, rol, seniority, email).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
 }
