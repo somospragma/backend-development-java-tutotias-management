@@ -127,14 +127,26 @@ public class UserController {
     }
     
     @GetMapping
-    public ResponseEntity<List<UserWithTutoringCountDto>> getAllUsersWithTutoringCount() {
+    public ResponseEntity<List<UserWithTutoringCountDto>> getAllUsersWithTutoringCount(
+            @RequestParam(required = false) String chapterId,
+            @RequestParam(required = false) String rol,
+            @RequestParam(required = false) Integer seniority,
+            @RequestParam(required = false) String email) {
         log.info("Admin {} requesting all users with tutoring count", UserContextHelper.getCurrentUserEmail());
         
         // Only admins can access this endpoint
         UserContextHelper.requireAdminRole();
-        
-        List<UserWithTutoringCountDto> users = getAllUsersWithTutoringCountUseCase.getAllUsersWithTutoringCount();
-        log.info("Admin {} successfully retrieved {} users with tutoring count", 
+
+        List<UserWithTutoringCountDto> users;
+        if (chapterId != null || rol != null || seniority != null || email != null) {
+            log.info("filters chapterId: {} || rol: {} || seniority:{} || email: {}",
+                    chapterId, rol, seniority, email);
+            users = getAllUsersWithTutoringCountUseCase.getAllUsersWithTutoringCountFiltered(chapterId, rol, seniority, email);
+        } else {
+            users = getAllUsersWithTutoringCountUseCase.getAllUsersWithTutoringCount();
+        }
+
+        log.info("Admin {} successfully retrieved {} filtered users with tutoring count",
                 UserContextHelper.getCurrentUserEmail(), users.size());
         
         return ResponseEntity.ok(users);
