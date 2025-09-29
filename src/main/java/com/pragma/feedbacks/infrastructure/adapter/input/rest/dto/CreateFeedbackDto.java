@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateFeedbackDto {
     @JsonIgnore
-    @NotBlank(message = "El ID del evaluador es obligatorio")
     private String evaluatorId;
     
     @NotBlank(message = "El ID de la tutoría es obligatorio")

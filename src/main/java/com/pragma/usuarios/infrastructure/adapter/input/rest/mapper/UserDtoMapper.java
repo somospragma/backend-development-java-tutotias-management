@@ -52,11 +52,7 @@ public abstract class UserDtoMapper {
         user.setGoogleUserId(dto.getGoogleUserId());
         user.setRol(RolUsuario.Tutorado);
         user.setActiveTutoringLimit(0);
-        
-        // Extract names from fullName
-        String[] names = externalUser.getFullName().split(" ", 2);
-        user.setFirstName(names[0]);
-        user.setLastName(names.length > 1 ? names[1] : "");
+        user.setFirstName(externalUser.getFullName());
         
         // Set chapter and seniority from first chapter in the list
         if (externalUser.getChapters() != null && !externalUser.getChapters().isEmpty()) {
