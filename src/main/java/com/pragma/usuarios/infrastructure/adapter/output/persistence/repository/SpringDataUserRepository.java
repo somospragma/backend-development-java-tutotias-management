@@ -17,7 +17,7 @@ public interface SpringDataUserRepository extends JpaRepository<UsersEntity, Str
     
     @Query("SELECT u FROM UsersEntity u WHERE " +
            "(:chapterId IS NULL OR u.chapter.id = :chapterId) AND " +
-           "(:rol IS NULL OR LOWER(CAST(u.rol AS string)) LIKE LOWER(CONCAT('%', :rol, '%'))) AND " +
+           "(:rol IS NULL OR LOWER(CAST(u.rol AS string)) = LOWER(:rol)) AND " +
            "(:seniority IS NULL OR u.seniority = :seniority) AND " +
            "(:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%')))")
     List<UsersEntity> findByFilters(@Param("chapterId") String chapterId, 

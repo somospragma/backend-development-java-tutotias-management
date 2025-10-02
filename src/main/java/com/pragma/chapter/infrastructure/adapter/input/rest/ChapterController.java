@@ -50,7 +50,7 @@ public class ChapterController {
     
     private final ChapterDtoMapper chapterDtoMapper;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<OkResponseDto<List<ChapterDto>>> getAllChapters() {
         List<Chapter> chapters = getAllChaptersUseCase.getAllChapters();
         List<ChapterDto> chaptersDto = chapterDtoMapper.toListDto(chapters);
@@ -58,7 +58,7 @@ public class ChapterController {
     }
 
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<OkResponseDto<ChapterDto>> postCreate(@Valid @RequestBody CreateChapterDto createChapterDto) {
         log.info("User {} creating chapter  to {}",
                 UserContextHelper.getCurrentUserEmail(), createChapterDto.getName());
