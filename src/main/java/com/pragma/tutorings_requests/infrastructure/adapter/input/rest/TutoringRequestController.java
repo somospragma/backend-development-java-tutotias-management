@@ -114,14 +114,16 @@ public class TutoringRequestController {
             
             List<TutoringRequest> requests;
             
-            // Non-admin users can only see their own requests
-            if (!UserContextHelper.isCurrentUserAdmin()) {
+            // se quitan las condiciones de filtros por rol
+            /*if (!UserContextHelper.isCurrentUserAdmin()) {
                 log.debug("Non-admin user {} filtering requests to own requests only", currentUser.getEmail());
                 if (filterDto == null) {
                     filterDto = new TutoringRequestFilterDto();
                 }
-                filterDto.setTuteeId(currentUser.getId());
-            }
+                if(!UserContextHelper.canActAsTutor()) {
+                    filterDto.setTuteeId(currentUser.getId());
+                }
+            }*/
             
             // Check if filterDto is null or empty (all fields are null)
             boolean isEmptyFilter = filterDto == null || 
