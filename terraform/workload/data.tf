@@ -57,7 +57,7 @@ data "aws_iam_role" "task_role" {
 
 data "aws_secretsmanager_secret" "mi_secreto" {
   provider = aws.principal
-  name     = "rds!cluster-588a6261-75a3-47c3-bfff-865777dce2e0"
+  name     = "rds!cluster-e0079f21-2d9e-4b37-b77c-f72b3987e10e"
 }
 
 data "aws_rds_cluster" "tutorias" {

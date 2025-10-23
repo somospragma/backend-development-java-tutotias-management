@@ -51,7 +51,7 @@ module "rds" {
           }
           cluster_scaling_configuration = {
             max_capacity             = "2"
-            min_capacity             = "0.5"
+            min_capacity             = "0"
             seconds_until_auto_pause = "3600"
           }
           instance_parameter = {

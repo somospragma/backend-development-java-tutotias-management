@@ -23,12 +23,13 @@ module "elb" {
       application_id             = "tutorias"
 
       listeners = [
+        # Listener HTTPS (puerto 443) - TRÁFICO REAL
         {
-          protocol                = "HTTP"
-          port                    = "8080"
-          certificate             = ""
+          protocol                = "HTTPS"
+          port                    = "443"
+          certificate             = "arn:aws:acm:us-east-1:026090553765:certificate/f0073135-89b0-4e87-8b6b-4a8bf3dd12b9"
           default_target_group_id = "core"
-          rules                   = []
+          rules                   = []  # Sin reglas adicionales, usa default action
         }
       ]
       target_groups = [
@@ -39,9 +40,9 @@ module "elb" {
           vpc_id                = data.aws_vpc.vpc.id
           target_type           = "ip"
           healthy_threshold     = "5"
-          interval              = "30"
-          path                  = "/"
-          unhealthy_threshold   = "2"
+          interval              = "60"
+          path                  = "/actuator/health"
+          unhealthy_threshold   = "10"
           matcher               = "200"
         }
       ]
@@ -49,7 +50,6 @@ module "elb" {
   }
 
 }
-
 
 ######################################################################
 # Módulo ECS Cluster
@@ -121,7 +121,7 @@ module "ecs_services" {
   ecs_services = {
     "tutorias-core" = {
       cluster_name              = module.ecs_cluster.cluster_info["tutorias"].cluster_name
-      desired_count             = 0
+      desired_count             = 1
       task_cpu                  = 512
       task_memory               = 1024
       subnets                   = data.aws_subnets.service.ids
@@ -186,7 +186,7 @@ module "ecs_services" {
             },
             {
               name  = "DATABASE_NAME",
-              value = "sistematutorias"
+              value = "tutorias"
             },
             {
               name  = "DATABASE_PORT",
